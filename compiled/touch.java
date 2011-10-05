@@ -1,10 +1,36 @@
-import cc.arduino.*;
+import processing.core.*; 
+import processing.xml.*; 
 
-import hypermedia.video.*;
-import processing.serial.*;
-import Blobscanner.*;
-import java.util.*;
-import processing.opengl.*;
+import cc.arduino.*; 
+import hypermedia.video.*; 
+import processing.serial.*; 
+import Blobscanner.*; 
+import java.util.*; 
+import processing.opengl.*; 
+
+import java.applet.*; 
+import java.awt.Dimension; 
+import java.awt.Frame; 
+import java.awt.event.MouseEvent; 
+import java.awt.event.KeyEvent; 
+import java.awt.event.FocusEvent; 
+import java.awt.Image; 
+import java.io.*; 
+import java.net.*; 
+import java.text.*; 
+import java.util.*; 
+import java.util.zip.*; 
+import java.util.regex.*; 
+
+public class touch extends PApplet {
+
+
+
+
+
+
+
+
 
 float displayScale;
 
@@ -17,7 +43,7 @@ Detector bd;
 
 Board board;
 
-void setup() {
+public void setup() {
 	size(600, 600, P2D);
 
 	println(Serial.list());
@@ -34,7 +60,7 @@ void setup() {
 	background(255, 255, 255);
 } 
 
-void draw() {
+public void draw() {
 
   background(255,255,255);
   int i = 0;
@@ -50,7 +76,7 @@ void draw() {
   //println(frameRate);
 }
 
-void findBlobs() {
+public void findBlobs() {
   
   //image(buffer,0,0,width,height);
   buffer.endDraw();
@@ -76,7 +102,7 @@ void findBlobs() {
   }*/
 }
 
-void updateBoard() {
+public void updateBoard() {
   buffer.background(255, 255, 255);
   buffer.stroke(0);
   buffer.strokeWeight(1);
@@ -115,7 +141,7 @@ void updateBoard() {
   //board.makePaths();
 }*/
 
-void generateBoard() {
+public void generateBoard() {
   int i;
   float w = 10;
   float h = 10;
@@ -127,29 +153,28 @@ void generateBoard() {
 
   float xOffset = w / (numX * 2);
   float yOffset = h / (numY * 2);
-  for (i=0; i < numX; i++) {
+  for (i=0; i <  numX; i++) {
     board.addSource(i*xSpacing+xOffset, 0);
     board.addSensor(i, i*xSpacing+xOffset/2, 0);
   }  
 
-  for (i=0; i < numY; i++) {
+  for (i=0; i <  numY; i++) {
     board.addSource(w, i*ySpacing+yOffset);
     board.addSensor(i, w, i*ySpacing+yOffset/2);
   }
 
-  for (i=0; i < numX; i++) {
+  for (i=0; i <  numX; i++) {
     board.addSource(i*xSpacing+xOffset, h);
     board.addSensor(i, i*xSpacing+xOffset/2, h);
   }  
 
-  for (i=0; i < numY; i++) {
+  for (i=0; i <  numY; i++) {
     board.addSource(0, i*ySpacing+yOffset);
     board.addSensor(i, 0, i*ySpacing+yOffset/2);
   }
 
-  board.addObstruction(.5, 7, 5);
-  board.addObstruction(.5, 1, 2);
-	
+  board.addObstruction(.5f, 7, 5);
+  board.addObstruction(.5f, 1, 2);
   //board.makePaths();
 }
 
@@ -157,9 +182,9 @@ void generateBoard() {
 // Super Fast Blur v1.1
 // by Mario Klingemann <http://incubator.quasimondo.com>
 // ==================================================
-void fastBlur(PImage img, int radius) {
+public void fastBlur(PImage img, int radius) {
 
-  if (radius < 1) {
+  if (radius <  1) {
     return;
   }
   int w = img.width;
@@ -177,13 +202,13 @@ void fastBlur(PImage img, int radius) {
 
   int[] pix = img.pixels;
   int dv[] = new int[256*div];
-  for (i = 0; i < 256*div; i++) {
+  for (i = 0; i <  256*div; i++) {
     dv[i] = (i / div);
   }
 
   yw = yi = 0;
 
-  for (y = 0; y < h; y++) {
+  for (y = 0; y <  h; y++) {
     rsum = gsum = bsum = 0;
     for (i = -radius; i <= radius; i++) {
       p = pix[yi + min(wm, max(i, 0))];
@@ -191,7 +216,7 @@ void fastBlur(PImage img, int radius) {
       gsum += (p & 0x00ff00)>>8;
       bsum += p & 0x0000ff;
     }
-    for (x = 0; x < w; x++) {
+    for (x = 0; x <  w; x++) {
 
       r[yi] = dv[rsum];
       g[yi] = dv[gsum];
@@ -212,7 +237,7 @@ void fastBlur(PImage img, int radius) {
     yw += w;
   }
 
-  for (x = 0; x < w; x++) {
+  for (x = 0; x <  w; x++) {
     rsum = gsum = bsum = 0;
     yp =- radius*w;
     for (i = -radius; i <= radius; i++) {
@@ -223,7 +248,7 @@ void fastBlur(PImage img, int radius) {
       yp += w;
     }
     yi = x;
-    for (y = 0; y < h; y++) {
+    for (y = 0; y <  h; y++) {
       pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[gsum]<<8) | dv[bsum];
       if (x == 0) {
         vmin[y] = min(y + radius + 1, hm)*w;
@@ -241,3 +266,148 @@ void fastBlur(PImage img, int radius) {
   }
 }
 
+class Board {
+  /*ArrayList<Path> paths = new ArrayList<Path>();
+  ArrayList<PVector> sources = new ArrayList<PVector>();
+  ArrayList<PVector> sensors = new ArrayList<PVector>();*/
+  ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
+
+	ArrayList<Source> sources = new ArrayList<Source>();
+	ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+  
+  Board() {
+  }
+  
+  public void addObstruction(float r, float x, float y) {
+    obstructions.add(new Obstruction(r,x,y));
+  }
+  
+  public void clearObstructions() {
+    //obstructions.clear();
+  }
+  
+  public void findBlockedPaths() {
+    for(Source s : sources) {
+		/*for(Path p : s.paths ) {
+	      p.blocked = false;
+	      for(Obstruction o : obstructions) {
+	        float a =  p.magnitude();
+	        float b = p.from.dist(o.location);
+	        float c = p.to.dist(o.location);
+	        float s = (a+b+c)/2;
+	        float tosquare = s*(s-a)*(s-b)*(s-c);
+        
+	        double area = Math.sqrt(tosquare);
+        
+	        double h = 2*area/a;
+        
+	        if(h < o.r) {
+	          p.blocked = true;
+	        }
+	      }
+	    }*/
+	}	
+  }
+
+	public void addSource(float x, float y) {
+		sources.add(new Source(x, y));
+	}
+	
+	public void addSensor(int i, float x, float y) {
+		
+		sensors.add(new Sensor(x, y));
+		for( Source s : sources ) {
+			s.addSensor(i, sensors.get(sensors.size()) );
+		}
+	}
+  
+  /*void addPath(int from, int to) {
+    paths.add(new Path(sources.get(from), sensors.get(to)));
+  }*/
+  
+  public void draw(PGraphics buffer, float scaling) {
+    for(Path p : paths) {
+      if(!p.blocked) {
+        buffer.line(p.from.x * scaling, p.from.y * scaling, p.to.x * scaling, p.to.y * scaling);
+      }
+    }
+    
+    buffer.stroke(255,0,0);
+    buffer.strokeWeight(1);
+     buffer.noFill();
+    /*for(Obstruction o : obstructions) {
+      buffer.ellipse((o.location.x)*scaling, (o.location.y)*scaling, (o.r*2)*scaling, o.r*2*scaling);
+    }*/
+  }
+}
+class Obstruction {
+ float r;
+  PVector location;
+ Obstruction(float r, float x, float y) {
+   this.r = r;
+   location = new PVector(x,y);
+ } 
+  
+}
+class Sensor {
+	PVector location;
+	Sensor(float x, float y) {
+		location = new PVector(x,y);
+	}
+	
+	Sensor(PVector p) {
+		location = p;
+	}
+}
+class Source {
+	PVector location;
+	//ArrayList<Path> paths = new ArrayList<Path>();
+	//ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+	
+	Map<Integer, Path> paths = new HashMap<Intege, Path>();
+	
+	Source(float x, float y) {
+		location = new PVector(x,y);
+	}
+	
+	Source(PVector l) {
+		location = l;
+	}
+	
+	public void addSensor(int i, Sensor s) {
+		paths.put(i, new Path(this, s));
+	}
+	
+	public void addSensor(int i, float x, float y) {
+		paths.put(i, new Path(this, new Sensor(x, y)));
+	}
+	
+	public void makePaths() {
+		
+	}
+	
+	
+	
+}
+class Path {
+	Sensor to;
+	Source from;
+	boolean blocked;
+
+	Path(Source from, Sensor to) {
+		this.from = from;
+		this.blocked = false;
+		this.to = to;
+	}
+
+	public float magnitude() {
+		return PVector.sub(from.location,to.location).mag();
+	}
+
+
+
+}
+  static public void main(String args[]) {
+    PApplet.main(new String[] { "--bgcolor=#FFFFFF", "touch" });
+  }
+}
