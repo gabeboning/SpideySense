@@ -116,41 +116,60 @@ void updateBoard() {
 }*/
 
 void generateBoard() {
-  int i;
-  float w = 10;
-  float h = 10;
-  float numX = 10;
-  float numY = 10;
+	int i;
+	float w = 10;
+	float h = 10;
+	int numX = 10;
+	int numY = 10;
 
-  float xSpacing = w/numX;
-  float ySpacing = h/numY;
+	float xSpacing = w/numX;
+	float ySpacing = h/numY;
 
-  float xOffset = w / (numX * 2);
-  float yOffset = h / (numY * 2);
-  for (i=0; i < numX; i++) {
-    board.addSource(i*xSpacing+xOffset, 0);
-    board.addSensor(i, i*xSpacing+xOffset/2, 0);
-  }  
+	float xOffset = w / (numX * 2);
+	float yOffset = h / (numY * 2);
 
-  for (i=0; i < numY; i++) {
-    board.addSource(w, i*ySpacing+yOffset);
-    board.addSensor(i, w, i*ySpacing+yOffset/2);
-  }
+	// add sources before sensors
+	for (i=0; i < numX; i++) {
+		board.addSource(i*xSpacing+xOffset, 0);
 
-  for (i=0; i < numX; i++) {
-    board.addSource(i*xSpacing+xOffset, h);
-    board.addSensor(i, i*xSpacing+xOffset/2, h);
-  }  
+	}  
 
-  for (i=0; i < numY; i++) {
-    board.addSource(0, i*ySpacing+yOffset);
-    board.addSensor(i, 0, i*ySpacing+yOffset/2);
-  }
+	for (i=0; i < numY; i++) {
+		board.addSource(w, i*ySpacing+yOffset);
 
-  board.addObstruction(.5, 7, 5);
-  board.addObstruction(.5, 1, 2);
-	
-  //board.makePaths();
+	}
+
+	for (i=0; i < numX; i++) {
+		board.addSource(i*xSpacing+xOffset, h);
+
+	}  
+
+	for (i=0; i < numY; i++) {
+		board.addSource(0, i*ySpacing+yOffset);
+
+	}
+
+	// add sensors
+	for (i=0; i < numX; i++) {
+		board.addSensor(i, i*xSpacing+xSpacing/3, 0);
+	}  
+
+	for (i=0; i < numY; i++) {
+		board.addSensor(i + numX, w, i*ySpacing+ySpacing/3);
+	}
+
+	for (i=0; i < numX; i++) {
+		board.addSensor(i + numX + numY, i*xSpacing+xSpacing/3, h);
+	}  
+
+	for (i=0; i < numY; i++) {
+		board.addSensor(i + numX*2 + numY, 0, i*ySpacing+ySpacing/3);
+	}
+
+	board.addObstruction(.5, 7, 5);
+	board.addObstruction(.5, 1, 2);
+	//board.print();
+	//board.makePaths();
 }
 
 // ==================================================

@@ -21,12 +21,31 @@ class Source {
 		paths.put(i, new Path(this, new Sensor(x, y)));
 	}
 	
+	void drawSensors(PGraphics buffer, float scale) {
+		buffer.stroke(0,0,255);
+		buffer.fill(0,0,255);
+		Path p;
+		for( Map.Entry entry: paths.entrySet() ) { 
+			p = (Path)entry.getValue();
+			//println(p.to);
+			println(location.x + " " + p.to.location.x);
+			buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5,5);
+		}
+		
+	}
+	
 	void makePaths() {
 		
 	}
 	
-	void draw() {
-		
+	void draw(PGraphics buffer, float scale) {
+		Path p;
+		for( Map.Entry entry: paths.entrySet() ) { 
+			p = (Path)entry.getValue();
+			//println(p.to);
+			println(location.x + " " + p.to.location.x);
+			buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
+		}
 	}
 	
 	

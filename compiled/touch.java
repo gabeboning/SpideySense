@@ -142,40 +142,60 @@ public void updateBoard() {
 }*/
 
 public void generateBoard() {
-  int i;
-  float w = 10;
-  float h = 10;
-  float numX = 10;
-  float numY = 10;
+	int i;
+	float w = 10;
+	float h = 10;
+	int numX = 10;
+	int numY = 10;
 
-  float xSpacing = w/numX;
-  float ySpacing = h/numY;
+	float xSpacing = w/numX;
+	float ySpacing = h/numY;
 
-  float xOffset = w / (numX * 2);
-  float yOffset = h / (numY * 2);
-  for (i=0; i <  numX; i++) {
-    board.addSource(i*xSpacing+xOffset, 0);
-    board.addSensor(i, i*xSpacing+xOffset/2, 0);
-  }  
+	float xOffset = w / (numX * 2);
+	float yOffset = h / (numY * 2);
 
-  for (i=0; i <  numY; i++) {
-    board.addSource(w, i*ySpacing+yOffset);
-    board.addSensor(i, w, i*ySpacing+yOffset/2);
-  }
+	// add sources before sensors
+	for (i=0; i <  numX; i++) {
+		board.addSource(i*xSpacing+xOffset, 0);
 
-  for (i=0; i <  numX; i++) {
-    board.addSource(i*xSpacing+xOffset, h);
-    board.addSensor(i, i*xSpacing+xOffset/2, h);
-  }  
+	}  
 
-  for (i=0; i <  numY; i++) {
-    board.addSource(0, i*ySpacing+yOffset);
-    board.addSensor(i, 0, i*ySpacing+yOffset/2);
-  }
+	for (i=0; i <  numY; i++) {
+		board.addSource(w, i*ySpacing+yOffset);
 
-  board.addObstruction(.5f, 7, 5);
-  board.addObstruction(.5f, 1, 2);
-  //board.makePaths();
+	}
+
+	for (i=0; i <  numX; i++) {
+		board.addSource(i*xSpacing+xOffset, h);
+
+	}  
+
+	for (i=0; i <  numY; i++) {
+		board.addSource(0, i*ySpacing+yOffset);
+
+	}
+
+	// add sensors
+	for (i=0; i <  numX; i++) {
+		board.addSensor(i, i*xSpacing+xSpacing/3, 0);
+	}  
+
+	for (i=0; i <  numY; i++) {
+		board.addSensor(i + numX, w, i*ySpacing+ySpacing/3);
+	}
+
+	for (i=0; i <  numX; i++) {
+		board.addSensor(i + numX + numY, i*xSpacing+xSpacing/3, h);
+	}  
+
+	for (i=0; i <  numY; i++) {
+		board.addSensor(i + numX*2 + numY, 0, i*ySpacing+ySpacing/3);
+	}
+
+	board.addObstruction(.5f, 7, 5);
+	board.addObstruction(.5f, 1, 2);
+	//board.print();
+	//board.makePaths();
 }
 
 // ==================================================
@@ -267,78 +287,98 @@ public void fastBlur(PImage img, int radius) {
 }
 
 class Board {
-  /*ArrayList<Path> paths = new ArrayList<Path>();
-  ArrayList<PVector> sources = new ArrayList<PVector>();
-  ArrayList<PVector> sensors = new ArrayList<PVector>();*/
-  ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
+
+	ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
 
 	ArrayList<Source> sources = new ArrayList<Source>();
 	ArrayList<Sensor> sensors = new ArrayList<Sensor>();
   
-  Board() {
-  }
-  
-  public void addObstruction(float r, float x, float y) {
-    obstructions.add(new Obstruction(r,x,y));
-  }
-  
-  public void clearObstructions() {
-    //obstructions.clear();
-  }
-  
-  public void findBlockedPaths() {
-    for(Source s : sources) {
+	Board() {
+	}
+
+	public void addObstruction(float r, float x, float y) {
+		obstructions.add(new Obstruction(r,x,y));
+	}
+
+	public void clearObstructions() {
+		//obstructions.clear();
+	}
+
+	public void print() {
+		println(sources.get(24).paths.size());
+		//println(sources.get(0).paths);
+	}
+
+	public void findBlockedPaths() {
+		for(Source s : sources) {
 		/*for(Path p : s.paths ) {
-	      p.blocked = false;
-	      for(Obstruction o : obstructions) {
-	        float a =  p.magnitude();
-	        float b = p.from.dist(o.location);
-	        float c = p.to.dist(o.location);
-	        float s = (a+b+c)/2;
-	        float tosquare = s*(s-a)*(s-b)*(s-c);
-        
-	        double area = Math.sqrt(tosquare);
-        
-	        double h = 2*area/a;
-        
-	        if(h < o.r) {
-	          p.blocked = true;
-	        }
-	      }
-	    }*/
-	}	
-  }
+		p.blocked = false;
+		for(Obstruction o : obstructions) {
+		float a =  p.magnitude();
+		float b = p.from.dist(o.location);
+		float c = p.to.dist(o.location);
+		float s = (a+b+c)/2;
+		float tosquare = s*(s-a)*(s-b)*(s-c);
+
+		double area = Math.sqrt(tosquare);
+
+		double h = 2*area/a;
+
+		if(h < o.r) {
+		p.blocked = true;
+		}
+		}
+		}*/
+		}	
+	}
 
 	public void addSource(float x, float y) {
 		sources.add(new Source(x, y));
 	}
-	
+
 	public void addSensor(int i, float x, float y) {
-		
+
 		sensors.add(new Sensor(x, y));
 		for( Source s : sources ) {
-			s.addSensor(i, sensors.get(sensors.size()) );
+			s.addSensor(i, sensors.get(sensors.size() - 1) );
 		}
 	}
-  
-  /*void addPath(int from, int to) {
-    paths.add(new Path(sources.get(from), sensors.get(to)));
-  }*/
-  
-  public void draw(PGraphics buffer, float scaling) {
-    for(Path p : paths) {
-      if(!p.blocked) {
-        buffer.line(p.from.x * scaling, p.from.y * scaling, p.to.x * scaling, p.to.y * scaling);
-      }
-    }
-    
-    buffer.stroke(255,0,0);
-    buffer.strokeWeight(1);
-     buffer.noFill();
-    /*for(Obstruction o : obstructions) {
-      buffer.ellipse((o.location.x)*scaling, (o.location.y)*scaling, (o.r*2)*scaling, o.r*2*scaling);
-    }*/
-  }
+
+	/*void addPath(int from, int to) {
+	paths.add(new Path(sources.get(from), sensors.get(to)));
+	}*/
+	int i = 0;
+	public void draw(PGraphics buffer, float scaling) {
+		
+		buffer.stroke(0,0,0);
+		buffer.strokeWeight(1);
+		for(Source s : sources) {
+			s.draw(buffer, scaling);
+			//image(buffer, 0,0,width,height);
+			//delay(100);
+		}
+		/*sources.get(i).draw(buffer, scaling);
+		
+		sources.get(i).drawSensors(buffer, scaling);*/
+		buffer.fill(255,0,0);
+		buffer.stroke(255,0,0);
+		for(Source s : sources) {
+			buffer.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
+		}
+
+		buffer.stroke(255,0,0);
+		buffer.strokeWeight(1);
+		buffer.noFill();
+		if( i == sources.size() -1 ) {
+			i = 0;
+		}
+		else {
+			i++;
+		}
+		/*for(Obstruction o : obstructions) {
+		buffer.ellipse((o.location.x)*scaling, (o.location.y)*scaling, (o.r*2)*scaling, o.r*2*scaling);
+		}*/
+	}
 }
 class Obstruction {
  float r;
@@ -364,7 +404,7 @@ class Source {
 	//ArrayList<Path> paths = new ArrayList<Path>();
 	//ArrayList<Sensor> sensors = new ArrayList<Sensor>();
 	
-	Map<Integer, Path> paths = new HashMap<Intege, Path>();
+	Map<Integer, Path> paths = new HashMap<Integer, Path>();
 	
 	Source(float x, float y) {
 		location = new PVector(x,y);
@@ -382,8 +422,31 @@ class Source {
 		paths.put(i, new Path(this, new Sensor(x, y)));
 	}
 	
+	public void drawSensors(PGraphics buffer, float scale) {
+		buffer.stroke(0,0,255);
+		buffer.fill(0,0,255);
+		Path p;
+		for( Map.Entry entry: paths.entrySet() ) { 
+			p = (Path)entry.getValue();
+			//println(p.to);
+			println(location.x + " " + p.to.location.x);
+			buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5,5);
+		}
+		
+	}
+	
 	public void makePaths() {
 		
+	}
+	
+	public void draw(PGraphics buffer, float scale) {
+		Path p;
+		for( Map.Entry entry: paths.entrySet() ) { 
+			p = (Path)entry.getValue();
+			//println(p.to);
+			println(location.x + " " + p.to.location.x);
+			buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
+		}
 	}
 	
 	
