@@ -17,14 +17,14 @@ Serial myPort;
 // define some constants
 
 int maxBlob = 0; // highest blob ID we've hit
-int movementThreshold = 300, blurRadius = 5, minBlobSize = 120; // for tracking purposes
+int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
 
 Flob flob;
 
 ArrayList<trackedBlob> blobs = new ArrayList<trackedBlob>();
 ArrayList<trackedBlob> prevblobs = new ArrayList<trackedBlob>();
 
-BlockingQueue<PGraphics> frames = new LinkedBlockingQueue<PGraphics>();
+BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(100);
 
 int w, h, ledAngle;
 
@@ -43,73 +43,72 @@ void setup() {
 
   //listener = new Listener(board, myPort);
 
-  //opencv = new OpenCV(this);
-  //opencv.allocate(width, height);
   board = new Board(w, h, ledAngle);
   board.pulse = pulse;
   simulateBoard();
   //testBoard();
 
   buffer = createGraphics(width, height, P2D);
-  //buffer.beginDraw();
-  //buffer.background(0,0,0);
-  //buffer.endDraw();
-
-  //image(buffer,0,0);
-  //bg = get();
 
   displayScale = 30; // 80*10 = 800
   img = createImage(width, height, RGB);
+  
+  // set up tracking
   flob = new Flob(this, img);
-
   flob.setOm(0).setMinNumPixels(minBlobSize).setMaxNumPixels(3000);
 
   stroke(255);
   background(255, 255, 255);
+  rectMode(CENTER);
+ 
 
   thread("makeFrames");
 }
 
 
 void draw() {
-  //background(0, 0, 0);
-
-  if (frames.size() > 0) {
+  // serial implementation
+//    board.update(); // do the computations
+//    buffer.beginDraw();
+//    board.draw(buffer, displayScale); // draw the lines from the board object
+//    buffer.endDraw();
+//    image(buffer, 0,0);
+//    curFrame = buffer;
+//    findBlobs();
+    
+    // parallel
+ if(frames.size() > 0) {
     curFrame = frames.remove();
     image(curFrame, 0,0,width,height);
     findBlobs();
-  }
-  else {
-    println("no frames");
-  }
-  //image(buffer,0,0,width,height);
-  //save("all.png");
+ }
+ else {
+   println("empty");
+ }
 
-  // image(buffer, 0, 0);
-
-  // img = buffer.get(0,0,buffer.width, buffer.height);
-  //image(buffer,0,0);
-
-  //img = get();
-  //  fastBlur(img, blurRadius);
-  //  
-  //  image(img,0,0); // display it so we can threshold
-  //
-
-  if (pulse) {
-    //    delay(100);
-  }
+//
+//  if (pulse) {
+//    //    delay(100);
+//  }
 
   println(frameRate);
+  //delay(1000);
 }
 
 void makeFrames() {
+  PGraphics thisFrame = createGraphics(width, height, P2D);
+  float myDisplayScale = displayScale;
   while (true) {
     board.update(); // do the computations
-    buffer.beginDraw();
-    board.draw(buffer, displayScale); // draw the lines from the board object
-    buffer.endDraw();
-    frames.offer(buffer);
+    thisFrame.beginDraw();
+    board.draw(thisFrame, myDisplayScale); // draw the lines from the board object
+    thisFrame.endDraw();
+    try {
+    frames.put(thisFrame);
+    }
+    catch(Exception e) {
+      println("problem?");
+    }
   }
 
   //println("making frame");
@@ -117,19 +116,14 @@ void makeFrames() {
 
 
 void findBlobs() {
-  //img = curFrame.get(0, 0, curFrame.width, curFrame.height);
-  //image(curFrame, 0, 0, curFrame.width, curFrame.height);
+  boolean stop = false;
 
-  //img = get();
-  //fastBlur(img, 4);
-  //image(img,0,0);
-  //filter(THRESHOLD, .8);
-  //img = get();
-  //image(img,0,0); // display it so we can threshold
-  //img = get();
-  blobs = flob.tracksimple(curFrame.get(0, 0, curFrame.width, curFrame.height)); // get the blobs
+  blobs = flob.tracksimple(get()); // get the blobs
   //blobs = flob.tracksimple(img);
-
+  if(blobs.size() > 30) {
+    stop = true;
+    //save("failed.png");
+  }
   assignIds(blobs, prevblobs); // match ids to existing ones 
 
     prevblobs.clear();
@@ -140,9 +134,9 @@ void findBlobs() {
     trackedBlob ab = (trackedBlob)blobs.get(i); 
     //    
     //    //box
-    //    fill(0,0,255,100);
+        fill(0,0,255,100);
 
-    //    //rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
+        rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
     //    //centroid
     //    fill(0,0,0,220);
     //    rect(ab.cx,ab.cy, 2, 2);
@@ -151,6 +145,11 @@ void findBlobs() {
     //
     prevblobs.add((trackedBlob)blobs.get(i));
   }
+  
+  //if(stop) noLoop();
+  
+    
+    
 }
 
 void assignIds(ArrayList<trackedBlob> b, ArrayList<trackedBlob> pb) {

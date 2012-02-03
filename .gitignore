@@ -2,3 +2,4 @@ application.*
 compiled/*
 images/*
 .DS_STORE
+failed.png

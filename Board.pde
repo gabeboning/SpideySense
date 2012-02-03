@@ -2,8 +2,6 @@ class Board {
 	ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
 	ArrayList<Source> sources = new ArrayList<Source>();
 	ArrayList<Sensor> sensors = new ArrayList<Sensor>();
-	
-	PGraphics buffer;
         int w,h,ledAngle;
 	
 	boolean pulse;
@@ -46,18 +44,21 @@ class Board {
 	}
 	
 	void update() {
-		//buffer.background(255, 255, 255);
-	  //buffer.stroke(0);
-	  //buffer.strokeWeight(1);
           //if(random(1.0) > .8) {
 //            synchronized(obstructions) {
-	    obstructions.get(0).location.x = mouseX/displayScale;
-	    obstructions.get(0).location.y = mouseY/displayScale;
+	    //obstructions.get(0).location.x = mouseX/displayScale;
+	    //obstructions.get(0).location.y = mouseY/displayScale;
+            obstructions.get(0).location.x += random(0.0,2) - 1;
+	    obstructions.get(0).location.y += random(0.0,2) - 1;
+            if(obstructions.get(0).location.x<0)obstructions.get(0).location.x = 0;
+            else if(obstructions.get(0).location.x > w) obstructions.get(0).location.x = w;
+            if(obstructions.get(0).location.y < 0) obstructions.get(0).location.y = 0;
+            else if(obstructions.get(0).location.y > h) obstructions.get(0).location.y = h;            
 //            }
             //board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
           //}
 	  //println(board.obstructions.get(0).location);
-	  board.findBlockedPaths();
+	   this.findBlockedPaths();
 	}
 
 	void print() {
@@ -149,21 +150,21 @@ class Board {
 	paths.add(new Path(sources.get(from), sensors.get(to)));
 	}*/
 	int i = 0;
-	void draw(PGraphics buffer, float scaling) {
+	void draw(PGraphics b, float scaling) {
               //save(i + ".png");
-		buffer.background(255,255,255);
-		buffer.stroke(0,0,0);
-		buffer.strokeWeight(1);
+		b.background(255,255,255);
+		b.stroke(0,0,0);
+		b.strokeWeight(1);
 		
 		if(pulse) {
 			Source one = sources.get(i);
 			println(i);
-			sources.get(i).draw(buffer, scaling);
+			sources.get(i).draw(b, scaling);
 
-			sources.get(i).drawSensors(buffer, scaling);
-			buffer.fill(255,0,0);
-			buffer.stroke(255,0,0);
-			buffer.ellipse(one.location.x * scaling, one.location.y * scaling, 5,5);
+			sources.get(i).drawSensors(b, scaling);
+			b.fill(255,0,0);
+			b.stroke(255,0,0);
+			b.ellipse(one.location.x * scaling, one.location.y * scaling, 5,5);
 
         		if( i == sources.size() -1 ) {
 			  i = 0;
@@ -175,24 +176,24 @@ class Board {
 		
 		else {
 			for(Source s : sources) {
-				s.draw(buffer, scaling);
-				//s.drawSensors(buffer, scaling);
-				//image(buffer, 0,0,width,height);
+				s.draw(b, scaling);
+				//s.drawSensors(b, scaling);
+				//image(b, 0,0,width,height);
 			}
 			
 			/*for(Source s : sources) {
-				buffer.fill(255,0,0);
-				buffer.noStroke();
-				buffer.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
+				b.fill(255,0,0);
+				b.noStroke();
+				b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
 			}*/
 		}
 		
-		//buffer.strokeWeight(2);
-		//buffer.stroke(0,255,0);
-		//buffer.noFill();
+		//b.strokeWeight(2);
+		//b.stroke(0,255,0);
+		//b.noFill();
                 if(drawObstructions) {
     	  	  for(Obstruction o : obstructions) {
-    	    		buffer.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
+    	    		b.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
     		  }
                 }
 		
