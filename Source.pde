@@ -27,8 +27,6 @@ class Source {
 		Path p;
 		for( Map.Entry entry: paths.entrySet() ) { 
 			p = (Path)entry.getValue();
-			//println(p.to);
-			println(location.x + " " + p.to.location.x);
 			buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5,5);
 		}
 		
@@ -38,13 +36,23 @@ class Source {
 		
 	}
 	
+	void setPath(int path, boolean sensorValue) {
+		Path p = (Path)paths.get(path);
+		p.blocked = !sensorValue;
+		//println(p.blocked);
+	}
+	
 	void draw(PGraphics buffer, float scale) {
 		Path p;
+		//buffer.stroke(255,255,255);
 		for( Map.Entry entry: paths.entrySet() ) { 
 			p = (Path)entry.getValue();
 			//println(p.to);
-			println(location.x + " " + p.to.location.x);
-			buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
+			//println(location.x + " " + p.to.location.x);
+			//println(p.blocked);
+			if(!p.blocked) {
+				buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
+			}
 		}
 	}
 	

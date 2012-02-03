@@ -1,176 +1,296 @@
-import cc.arduino.*;
-
-import hypermedia.video.*;
+import s373.flob.*;
 import processing.serial.*;
-import Blobscanner.*;
 import java.util.*;
-import processing.opengl.*;
+import java.util.concurrent.*;
 
 float displayScale;
 
-Serial myPort;
-Arduino arduino;
+PGraphics buffer, curFrame;
+PImage img;
 
-PGraphics buffer;
-
-Detector bd;
+PImage bg;
 
 Board board;
 
+Serial myPort;
+
+// define some constants
+
+int maxBlob = 0; // highest blob ID we've hit
+int movementThreshold = 300, blurRadius = 5, minBlobSize = 120; // for tracking purposes
+
+Flob flob;
+
+ArrayList<trackedBlob> blobs = new ArrayList<trackedBlob>();
+ArrayList<trackedBlob> prevblobs = new ArrayList<trackedBlob>();
+
+BlockingQueue<PGraphics> frames = new LinkedBlockingQueue<PGraphics>();
+
+int w, h, ledAngle;
+
+boolean pulse = false;
+//Blob[] blobsArray=null; 
+
 void setup() {
-	size(600, 600, P2D);
+  w = 36;
+  h = 24;
+  ledAngle = 80;
+  size(1080, 720, P2D);
+  //bg = createImage(1080, 720, RGB);
 
-	println(Serial.list());
-	//myPort = new Serial(this, Serial.list()[1], 9600);
+  //myPort = new Serial(this, Serial.list()[1], 115200);
+  //myPort.bufferUntil('\n');
 
-	bd = new Detector( this, 0, 0, width, height, 255 );
-	board = new Board();
-	generateBoard();
+  //listener = new Listener(board, myPort);
 
-	buffer = createGraphics(width, height, P2D);
+  //opencv = new OpenCV(this);
+  //opencv.allocate(width, height);
+  board = new Board(w, h, ledAngle);
+  board.pulse = pulse;
+  simulateBoard();
+  //testBoard();
 
-	displayScale = 60; // 80*10 = 800
-	stroke(255);
-	background(255, 255, 255);
-} 
+  buffer = createGraphics(width, height, P2D);
+  //buffer.beginDraw();
+  //buffer.background(0,0,0);
+  //buffer.endDraw();
+
+  //image(buffer,0,0);
+  //bg = get();
+
+  displayScale = 30; // 80*10 = 800
+  img = createImage(width, height, RGB);
+  flob = new Flob(this, img);
+
+  flob.setOm(0).setMinNumPixels(minBlobSize).setMaxNumPixels(3000);
+
+  stroke(255);
+  background(255, 255, 255);
+
+  thread("makeFrames");
+}
+
 
 void draw() {
+  //background(0, 0, 0);
 
-  background(255,255,255);
-  int i = 0;
-  
-  //println(arduino.digitalRead(3));
+  if (frames.size() > 0) {
+    curFrame = frames.remove();
+    image(curFrame, 0,0,width,height);
+    findBlobs();
+  }
+  else {
+    println("no frames");
+  }
+  //image(buffer,0,0,width,height);
+  //save("all.png");
 
-  buffer.beginDraw();
-  updateBoard(); // do the computations
-  board.draw(buffer, displayScale); // draw the lines from the board object
-  findBlobs();
-  image(buffer,0,0,width,height);
+  // image(buffer, 0, 0);
 
-  //println(frameRate);
+  // img = buffer.get(0,0,buffer.width, buffer.height);
+  //image(buffer,0,0);
+
+  //img = get();
+  //  fastBlur(img, blurRadius);
+  //  
+  //  image(img,0,0); // display it so we can threshold
+  //
+
+  if (pulse) {
+    //    delay(100);
+  }
+
+  println(frameRate);
 }
+
+void makeFrames() {
+  while (true) {
+    board.update(); // do the computations
+    buffer.beginDraw();
+    board.draw(buffer, displayScale); // draw the lines from the board object
+    buffer.endDraw();
+    frames.offer(buffer);
+  }
+
+  //println("making frame");
+}
+
 
 void findBlobs() {
-  
-  //image(buffer,0,0,width,height);
-  buffer.endDraw();
-  PImage img = buffer.get(); // get the PImage
-  fastBlur(img, 20); //blur it to fill in the gaps
-  //image(img, 0,0,width,height);
-  img.filter(THRESHOLD); // threshold
- //image(img, 0, 0, width, height); // paint the lines onto the screen
-  
-  bd.imageFindBlobs(img);
-  bd.loadBlobsFeatures();
-  bd.drawContours(color(255,0,0),1);
+  //img = curFrame.get(0, 0, curFrame.width, curFrame.height);
+  //image(curFrame, 0, 0, curFrame.width, curFrame.height);
 
-  //bd.weightBlobs(false);
-  //bd.findCentroids(true, true);
-  //for each blob in the image..
-  /*for (int i = 0; i < bd.getBlobsNumber(); i++) {
-    //computes and prints the mass.
-    if (bd.getBlobWeight(i) > 250) {
-      println("   The mass of blob #" + (i+1) + " is " + bd.getBlobWeight(i) + " pixels.");
-      bd.drawBlobContour(i, color(255, 0, 0), 2);
+  //img = get();
+  //fastBlur(img, 4);
+  //image(img,0,0);
+  //filter(THRESHOLD, .8);
+  //img = get();
+  //image(img,0,0); // display it so we can threshold
+  //img = get();
+  blobs = flob.tracksimple(curFrame.get(0, 0, curFrame.width, curFrame.height)); // get the blobs
+  //blobs = flob.tracksimple(img);
+
+  assignIds(blobs, prevblobs); // match ids to existing ones 
+
+    prevblobs.clear();
+  //image(flob.getImage(), 0, 0, width, height);
+
+  for (int i = 0; i < blobs.size(); i++) {
+    //    //println("----");
+    trackedBlob ab = (trackedBlob)blobs.get(i); 
+    //    
+    //    //box
+    //    fill(0,0,255,100);
+
+    //    //rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
+    //    //centroid
+    //    fill(0,0,0,220);
+    //    rect(ab.cx,ab.cy, 2, 2);
+    fill(255, 0, 0);
+    text(ab.id, ab.cx-8, ab.cy);
+    //
+    prevblobs.add((trackedBlob)blobs.get(i));
+  }
+}
+
+void assignIds(ArrayList<trackedBlob> b, ArrayList<trackedBlob> pb) {
+  //println(b.size() + " previous: " + pb.size());
+  int i, j, minId=-1, minIndex = -1;
+  int maxId=b.size();
+  float minDist, curDist;
+  trackedBlob cur, old;
+
+  for (i=0; i<b.size(); i++) { // loop through all current blobs
+    minId = -1;
+    minDist = 10000000;
+    cur = b.get(i);
+
+    for (j=0; j<pb.size(); j++) { // loop through all the old blobs 
+      old = pb.get(j);
+      curDist = sqrt( pow(cur.cx-old.cx, 2) + pow(cur.cy-old.cy, 2) ); // compute distance
+      if (curDist < minDist) { // find the closest, store it's info
+        minId = old.id;
+        minIndex=j;
+        minDist = curDist;
+      }
     }
-  }*/
+
+    // set the current blobs id to the nearest old one
+    // (they're the same)
+    if (minId == -1 || minDist > movementThreshold) { // if we ran out of old ones
+      cur.id = maxBlob;
+      maxBlob++;
+      //println("adding id");
+    }
+    else {
+      //println("setting " + cur.id + " to " + minId);
+      cur.id = minId;
+      pb.remove(minIndex); // remove it so we don't give it to two, and to get to O(n log n)
+    }
+  }
+
+  if (pb.size() > 0) {
+    pb.clear();
+  }
 }
 
-void updateBoard() {
-  buffer.background(255, 255, 255);
-  buffer.stroke(0);
-  buffer.strokeWeight(1);
-  board.obstructions.get(0).location.x = mouseX/displayScale;
-  board.obstructions.get(0).location.y = mouseY/displayScale;
-  //println(board.obstructions.get(0).location);
-  board.findBlockedPaths();
+void mouseClicked() {
+  //synchronized(board.obstructions) {
+
+  // causes concurrency errors!
+  board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
+
+  //}
+
+
+  //println("adding");
 }
 
-/*void generateBoard() { // make six vertical lines
+void keyPressed() {
+  if (key == UP) {
+
+    board.clearObstructions();
+  }
+}
+
+void serialEvent(Serial p) {
+  String instring = (myPort.readString());
+  //println(instring);
+  board.parseString(instring);
+}
+
+void testBoard() {
+  int sensorPerModule = 2;
+
+  board.addSource(w/2, 0);
+  board.addSource(w/2, h);
+  board.addSensor(0, w/2-1.125, 0);
+  board.addSensor(1, w/2+1.125, 0);
+  board.addSensor(8, w/2-1.125, h);
+  board.addSensor(9, w/2+1.125, h);
+  board.addObstruction(.4, 7, 5);
+}
+
+void simulateBoard() {
+  int modulesX = w/3;
+  int modulesY = h/3;
+
+  int sensorPerModule = 4;
+
+  float sensorSpacing = .75;
+  float ledSpacing = 3;
+
+  float ledOffset = 1.5;
+  float sensorOffset = .375;
+
   int i;
-  float w = 10;
-  float h = 10;
-  float numX = 4;
-  float numY = 10;
-
-  float xSpacing = w/numX;
-  float ySpacing = h/numY;
-
-  float xOffset = w / (numX * 2);
-  float yOffset = h / (numY * 2);
-  for (i=0; i < numX; i++) {
-    board.addSource(i*xSpacing+xOffset, 0);
-    //board.addSensor(i*xSpacing+xOffset/2, 0);
+  // add sources before sensors
+  for (i=0; i < modulesX; i++) {
+    board.addSource(i*ledSpacing+ledOffset, 0);
   }  
 
-  for (i=0; i < numX; i++) {
-    //board.addSource(i*xSpacing+xOffset, h);
-    board.addSensor(i*xSpacing+xOffset/2, h);
-    board.addPath(i,i);
+  for (i=0; i < modulesY; i++) {
+    board.addSource(w, i*ledSpacing+ledOffset);
+  }
+
+  for (i=0; i < modulesX; i++) {
+    board.addSource(i*ledSpacing+ledOffset, h);
+    //println((w-i)*xSpacing+xOffset);
   }  
 
+  for (i=0; i < modulesY; i++) {
+    board.addSource(0, i*ledSpacing+ledOffset);
+  }
 
-  board.addObstruction(.5, 7, 5);
-  //board.addObstruction(0, 1, 2);
-  //board.makePaths();
-}*/
 
-void generateBoard() {
-	int i;
-	float w = 10;
-	float h = 10;
-	int numX = 10;
-	int numY = 10;
+  // add sensors
+  for (i=0; i < modulesX * sensorPerModule; i++) {
+    board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
+  }  
 
-	float xSpacing = w/numX;
-	float ySpacing = h/numY;
+  for (i=0; i < modulesY * sensorPerModule; i++) {
+    board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
+  }
 
-	float xOffset = w / (numX * 2);
-	float yOffset = h / (numY * 2);
+  for (i=0; i < modulesX * sensorPerModule; i++) {
+    board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
+  }  
 
-	// add sources before sensors
-	for (i=0; i < numX; i++) {
-		board.addSource(i*xSpacing+xOffset, 0);
+  for (i=0; i < modulesY * sensorPerModule; i++) {
+    board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
+  }
 
-	}  
-
-	for (i=0; i < numY; i++) {
-		board.addSource(w, i*ySpacing+yOffset);
-
-	}
-
-	for (i=0; i < numX; i++) {
-		board.addSource(i*xSpacing+xOffset, h);
-
-	}  
-
-	for (i=0; i < numY; i++) {
-		board.addSource(0, i*ySpacing+yOffset);
-
-	}
-
-	// add sensors
-	for (i=0; i < numX; i++) {
-		board.addSensor(i, i*xSpacing+xSpacing/3, 0);
-	}  
-
-	for (i=0; i < numY; i++) {
-		board.addSensor(i + numX, w, i*ySpacing+ySpacing/3);
-	}
-
-	for (i=0; i < numX; i++) {
-		board.addSensor(i + numX + numY, i*xSpacing+xSpacing/3, h);
-	}  
-
-	for (i=0; i < numY; i++) {
-		board.addSensor(i + numX*2 + numY, 0, i*ySpacing+ySpacing/3);
-	}
-
-	board.addObstruction(.5, 7, 5);
-	board.addObstruction(.5, 1, 2);
-	//board.print();
-	//board.makePaths();
+  board.addObstruction(.4, 7, 5);
+  //board.addObstruction(.5, 8, 11);
+  /*board.addObstruction(.25, 20, 10);
+   board.addObstruction(.25, 10, 10);
+   board.addObstruction(.25, 2, 11);
+   board.addObstruction(.25, 15, 2);
+   board.addObstruction(.25, 4, 6);
+   board.addObstruction(.25, 11, 20);*/
+  //board.addObstruction(.25, 7, 6);
 }
+
 
 // ==================================================
 // Super Fast Blur v1.1
@@ -258,5 +378,9 @@ void fastBlur(PImage img, int radius) {
       yi += w;
     }
   }
+}
+void delay(int ms) {
+  int current_time = millis();
+  while (millis () - current_time < ms);
 }
 
