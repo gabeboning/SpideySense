@@ -104,7 +104,7 @@ void makeFrames() {
     board.draw(thisFrame, myDisplayScale); // draw the lines from the board object
     thisFrame.endDraw();
     try {
-    frames.put(thisFrame);
+      frames.put(thisFrame);
     }
     catch(Exception e) {
       println("problem?");
@@ -116,7 +116,8 @@ void makeFrames() {
 
 
 void findBlobs() {
-  boolean stop = false;
+  boolean stop = false;  
+  
 
   blobs = flob.tracksimple(get()); // get the blobs
   //blobs = flob.tracksimple(img);
@@ -152,6 +153,10 @@ void findBlobs() {
     
 }
 
+
+// simplistic algorithm to persist blob IDs across frames
+// almost certainly a better way to do this, but this was easiest to implement
+// of all the schemes I came up with
 void assignIds(ArrayList<trackedBlob> b, ArrayList<trackedBlob> pb) {
   //println(b.size() + " previous: " + pb.size());
   int i, j, minId=-1, minIndex = -1;
@@ -270,7 +275,7 @@ void simulateBoard() {
   for (i=0; i < modulesY * sensorPerModule; i++) {
     board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
   }
-
+ 
   for (i=0; i < modulesX * sensorPerModule; i++) {
     board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
   }  
@@ -280,6 +285,8 @@ void simulateBoard() {
   }
 
   board.addObstruction(.4, 7, 5);
+  board.addObstruction(.4, 10, 1);
+  board.addObstruction(.4, 1, 1);
   //board.addObstruction(.5, 8, 11);
   /*board.addObstruction(.25, 20, 10);
    board.addObstruction(.25, 10, 10);

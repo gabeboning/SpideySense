@@ -48,12 +48,14 @@ class Board {
 //            synchronized(obstructions) {
 	    //obstructions.get(0).location.x = mouseX/displayScale;
 	    //obstructions.get(0).location.y = mouseY/displayScale;
-            obstructions.get(0).location.x += random(0.0,2) - 1;
-	    obstructions.get(0).location.y += random(0.0,2) - 1;
-            if(obstructions.get(0).location.x<0)obstructions.get(0).location.x = 0;
-            else if(obstructions.get(0).location.x > w) obstructions.get(0).location.x = w;
-            if(obstructions.get(0).location.y < 0) obstructions.get(0).location.y = 0;
-            else if(obstructions.get(0).location.y > h) obstructions.get(0).location.y = h;            
+            for(int i = 0; i < obstructions.size(); i++) {
+              obstructions.get(i).location.x += random(0.0,2) - 1;
+  	    obstructions.get(i).location.y += random(0.0,2) - 1;
+              if(obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
+              else if(obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
+              if(obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
+              else if(obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
+            }            
 //            }
             //board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
           //}
