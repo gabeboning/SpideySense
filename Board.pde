@@ -21,7 +21,26 @@ class Board {
 		obstructions.clear();
 	}
 	
-	
+	void parseBytes(byte[] inBytes) {
+		int led = int(inBytes[0]);
+		println(led);
+		int sensorID = 0;
+		int i = 0, j=0;
+		byte cur;
+		// loop through the bytes
+		for(i = 1; i < inBytes.length; i++) {
+			cur = inBytes[i];
+			for(j=4; j > 0; j--) { // loop through the bits we want
+				if ((cur & (1L << j)) != 0)
+				{
+					println("sensor " + sensorID + " on");
+					
+				   // The bit was set
+				}
+				sensorID++;	
+			}	
+		}
+	}	
 	// takes a string of the data from the arduino and sets the paths accordingly
 	void parseString(String s) {
 		int openBracket = s.indexOf("{");

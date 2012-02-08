@@ -38,8 +38,8 @@ void setup() {
   size(1080, 720, P2D);
   //bg = createImage(1080, 720, RGB);
 
-  //myPort = new Serial(this, Serial.list()[1], 115200);
-  //myPort.bufferUntil('\n');
+  myPort = new Serial(this, Serial.list()[1], 115200);
+  myPort.bufferUntil('\n');
 
   //listener = new Listener(board, myPort);
 
