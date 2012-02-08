@@ -3,3 +3,4 @@ compiled/*
 images/*
 .DS_STORE
 failed.png
+*.swp

@@ -16,6 +16,7 @@ Serial myPort;
 
 // define some constants
 
+int totalModules;
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
 
@@ -36,7 +37,7 @@ void setup() {
   h = 24;
   ledAngle = 80;
   size(1080, 720, P2D);
-  //bg = createImage(1080, 720, RGB);
+  //bg = createImaue(1080, 720, RGB);
 
   myPort = new Serial(this, Serial.list()[1], 115200);
   myPort.bufferUntil('\n');
@@ -46,6 +47,11 @@ void setup() {
   board = new Board(w, h, ledAngle);
   board.pulse = pulse;
   simulateBoard();
+	byte[] inBuffer = new byte[3];
+	inBuffer[0] = 8;
+	inBuffer[1] = 30;
+	inBuffer[2] = 18;
+  board.parseBytes(inBuffer);
   //testBoard();
 
   buffer = createGraphics(width, height, P2D);
@@ -61,8 +67,8 @@ void setup() {
   background(255, 255, 255);
   rectMode(CENTER);
  
-
-  thread("makeFrames");
+	noLoop();
+ // thread("makeFrames");
 }
 
 
@@ -218,9 +224,11 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
-  String instring = (myPort.readString());
-  //println(instring);
-  board.parseString(instring);
+	byte[] inBuffer = new byte[totalModules+1];
+	int numRead = p.readBytes(inBuffer);
+	println("number of bytes read: " + numRead);	
+//println(instring);
+  board.parseBytes(inBuffer);
 }
 
 void testBoard() {
@@ -238,7 +246,7 @@ void testBoard() {
 void simulateBoard() {
   int modulesX = w/3;
   int modulesY = h/3;
-
+	totalModules = modulesX+modulesY;
   int sensorPerModule = 4;
 
   float sensorSpacing = .75;
