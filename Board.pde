@@ -10,7 +10,7 @@ class Board {
 
   Board(int w, int h, int ledAngle) {
   	
-		this.w = w;
+    this.w = w;
     this.h = h;
     this.ledAngle = ledAngle;
   }
@@ -34,6 +34,7 @@ class Board {
     s = (Source)sources.get(led);
     for (i=1; i<inBytes.length; i++) {
       cur = inBytes[i];
+      println("LED id: " + cur);
       for (j=7; j >= 0; j--) { // loop through the bits we want
         // remember that 1 in a bit indicates the sensor ISN'T triggered
         // if a bit == 0, it's triggered, thus, the path is not connected

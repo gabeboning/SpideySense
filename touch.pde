@@ -47,8 +47,8 @@ void setup() {
 
   board = new Board(w, h, ledAngle);
   board.pulse = pulse;
-  //simulateBoard();
-	fourbyfour();
+  simulateBoard();
+  //fourbyfour();
   //testBoard();
 
   buffer = createGraphics(width, height, P2D);
@@ -64,12 +64,12 @@ void setup() {
   stroke(255);
   background(255, 255, 255);
   rectMode(CENTER);
-  byte[] inBuffer = new byte[4];
-  inBuffer[0] = 0;
-  inBuffer[1] = 10; 
-  inBuffer[2] = -128;
-  inBuffer[3] = -1;
-  board.parseBytes(inBuffer);
+//  byte[] inBuffer = new byte[4];
+//  inBuffer[0] = 0;
+//  inBuffer[1] = 10; 
+//  inBuffer[2] = -128;
+//  inBuffer[3] = -1;
+//  board.parseBytes(inBuffer);
   //noLoop();
   //thread("makeFrames");
 }
@@ -89,7 +89,7 @@ void draw() {
   if (frames.size() > 0) {
     curFrame = frames.remove();
     image(curFrame, 0, 0, width, height);
-    findBlobs();
+    //findBlobs();
   }
   else {
     println("empty");
@@ -225,12 +225,20 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
+  
   PGraphics b = createGraphics(width, height, P2D);
   byte[] inBuffer = new byte[totalModules+1];
   int numRead = p.readBytes(inBuffer);
   println("number of bytes read: " + numRead);	
+  try{
   board.parseBytes(inBuffer);
-	makeAFrame(b);
+  }
+  catch(Exception e) {
+    noLoop();
+    print(inBuffer[0]);
+    println("ERRRORRSZ");
+  }
+  makeAFrame(b);
 }
 
 
@@ -296,7 +304,7 @@ void simulateBoard() {
   int modulesX = w/3;
   int modulesY = h/3;
   totalModules = modulesX+modulesY;
-  int sensorPerModule = 2;
+  int sensorPerModule = 4;
 
   float sensorSpacing = .75;
   float ledSpacing = 3;
