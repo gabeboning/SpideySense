@@ -64,14 +64,14 @@ void setup() {
   stroke(255);
   background(255, 255, 255);
   rectMode(CENTER);
-//  byte[] inBuffer = new byte[4];
-//  inBuffer[0] = 0;
-//  inBuffer[1] = 10; 
-//  inBuffer[2] = -128;
-//  inBuffer[3] = -1;
-//  board.parseBytes(inBuffer);
+  byte[] inBuffer = new byte[4];
+  inBuffer[0] = 0;
+  inBuffer[1] = 10; 
+  inBuffer[2] = -128;
+  inBuffer[3] = -1;
+  board.parseBytes(inBuffer);
   //noLoop();
-  //thread("makeFrames");
+  thread("makeFrames");
 }
 
 
@@ -225,20 +225,12 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
-  
   PGraphics b = createGraphics(width, height, P2D);
   byte[] inBuffer = new byte[totalModules+1];
   int numRead = p.readBytes(inBuffer);
   println("number of bytes read: " + numRead);	
-  try{
   board.parseBytes(inBuffer);
-  }
-  catch(Exception e) {
-    noLoop();
-    print(inBuffer[0]);
-    println("ERRRORRSZ");
-  }
-  makeAFrame(b);
+	makeAFrame(b);
 }
 
 
