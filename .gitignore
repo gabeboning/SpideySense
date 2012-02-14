@@ -3,9 +3,5 @@ compiled/*
 images/*
 .DS_STORE
 failed.png
-<<<<<<< HEAD
-*.swp
-=======
 *.swp
 *.swo
->>>>>>> master
