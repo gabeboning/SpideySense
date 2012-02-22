@@ -40,7 +40,7 @@ void setup() {
   size(int(w*displayScale), int(h*displayScale), P2D);
   //bg = createImaue(1080, 720, RGB);
 
-  myPort = new Serial(this, Serial.list()[1], 115200);
+  myPort = new Serial(this, Serial.list()[1], 38400);
   myPort.bufferUntil('\n');
 
   //listener = new Listener(board, myPort);
@@ -64,14 +64,15 @@ void setup() {
   stroke(255);
   background(255, 255, 255);
   rectMode(CENTER);
-  byte[] inBuffer = new byte[4];
-  inBuffer[0] = 0;
-  inBuffer[1] = 10; 
-  inBuffer[2] = -128;
-  inBuffer[3] = -1;
-  board.parseBytes(inBuffer);
+  //byte[] inBuffer = new byte[4];
+  //inBuffer[0] = 0;
+  //inBuffer[1] = 10; 
+  //inBuffer[2] = -128;
+  //inBuffer[3] = -1;
+  //board.parseBytes(inBuffer);
   //noLoop();
-  thread("makeFrames");
+  //thread("makeFrames");
+  //thread("readPort");
 }
 
 
@@ -92,7 +93,7 @@ void draw() {
     //findBlobs();
   }
   else {
-    println("empty");
+    //println("empty");
   }
 
   //
@@ -100,7 +101,7 @@ void draw() {
   //    //    delay(100);
   //  }
 
-  println(frameRate);
+  //println(frameRate);
   //delay(1000);
 }
 
@@ -224,13 +225,42 @@ void keyPressed() {
   }
 }
 
+//void readPort() {
+//  PGraphics b = createGraphics(width, height, P2D);
+//  byte[] inBuffer = new byte[totalModules+1];
+//  int i = 0;
+//  while(TRUE) {
+//    
+//    while ( myPort.available() > 0) {  // If data is available,
+//      val = myPort.read();         // read it and store it in val
+//      if(val==10) println();
+//      else print((val-48));
+//    }
+//    //println("number of bytes read: " + numRead);	
+//    if(numRead != 5) {
+//      println("wrong # of bytes");
+//    }
+//    else {
+//      board.parseBytes(inBuffer);
+//      makeAFrame(b);
+//    }
+//    
+//  }
+//  
+//}
+
 void serialEvent(Serial p) {
   PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[totalModules+1];
-  int numRead = p.readBytes(inBuffer);
-  println("number of bytes read: " + numRead);	
-  board.parseBytes(inBuffer);
-	makeAFrame(b);
+  byte[] inBuffer = new byte[14];
+  int n = p.readBytes(inBuffer);
+  
+  println("bytes read:" + n);
+  for(int i=0; i<inBuffer.length; i++) {
+   inBuffer[i] = (byte)((inBuffer[i]-48));
+    print(inBuffer[i]); 
+  }
+    board.parseBytes(inBuffer);
+    makeAFrame(b);
 }
 
 
