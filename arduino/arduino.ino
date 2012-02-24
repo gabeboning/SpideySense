@@ -39,7 +39,7 @@ void loop() {
   delay(1);
   digitalWrite(ledShift, LOW);
   digitalWrite(ledData, LOW);
-
+  delay(20);
   digitalWrite(latchPin, LOW);
   digitalWrite(latchPin, HIGH);
   byte buffer[numBoard];
