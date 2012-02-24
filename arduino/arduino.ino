@@ -12,7 +12,7 @@ const byte numBoard = 7;
 
 byte currentBoard = 0;
 byte cycleNum = 0;
-
+byte globalBuffer[numBoard];
 void setup() {
     
   pinMode(ledData, OUTPUT);
@@ -39,7 +39,6 @@ void loop() {
   delay(1);
   digitalWrite(ledShift, LOW);
   digitalWrite(ledData, LOW);
-  delay(20);
   if(currentBoard == 0)
     sendBuffer(globalBuffer, numBoard-1);
   else
@@ -48,10 +47,8 @@ void loop() {
   digitalWrite(latchPin, HIGH);
   byte buffer[numBoard];
   for(byte i = 0; i < numBoard; i++){
-    //buffer[i] = shiftIn(dataIn, clockPin, LSBFIRST);
     globalBuffer[i] = shift4of8(dataIn, clockPin);
   }
-  sendBuffer(buffer);
   currentBoard++;
   if(currentBoard == numBoard) currentBoard = 0;
   delay(1);
