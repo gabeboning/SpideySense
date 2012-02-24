@@ -39,7 +39,7 @@ void loop() {
   delay(1);
   digitalWrite(ledShift, LOW);
   digitalWrite(ledData, LOW);
-  delay(20);
+
   digitalWrite(latchPin, LOW);
   digitalWrite(latchPin, HIGH);
   byte buffer[numBoard];
@@ -54,17 +54,17 @@ void loop() {
 }
 
 void sendBuffer(byte buffer[]) {
-  Serial.write(currentBoard);
+  Serial.print(currentBoard);
   for(int i = numBoard-1; i >= 2 ; i-=2){
-    Serial.write((buffer[i]<<4)|buffer[i-1]);
+    Serial.print((buffer[i]<<4)|buffer[i-1]);
   }
   if(numBoard%2 != 0){
-    Serial.write(buffer[0]<<4); 
+    Serial.print(buffer[0]<<4); 
   }
   else{
-    Serial.write((buffer[1]<<4)|buffer[0]);
+    Serial.print((buffer[1]<<4)|buffer[0]);
   }
-  Serial.print('\n');
+  Serial.print("\n");
 }
 
 uint8_t shift4of8(uint8_t dataPin, uint8_t clockP) {
