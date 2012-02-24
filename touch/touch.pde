@@ -72,7 +72,6 @@ void setup() {
   //board.parseBytes(inBuffer);
   //noLoop();
   //thread("makeFrames");
-  //thread("readPort");
 }
 
 
@@ -93,7 +92,7 @@ void draw() {
     //findBlobs();
   }
   else {
-    //println("empty");
+    println("empty");
   }
 
   //
@@ -103,6 +102,22 @@ void draw() {
 
   //println(frameRate);
   //delay(1000);
+}
+
+void serialEvent(Serial p) {
+  PGraphics b = createGraphics(width, height, P2D);
+  byte[] inBuffer = new byte[totalModules+10];
+  int numRead = p.readBytes(inBuffer);
+  println("number of bytes read: " + numRead);	
+	
+	for(int i =0; i < numRead; i++) {
+		println(inBuffer[i]);
+	}
+	if(numRead != 6) return;
+
+	inBuffer[inBuffer.length - 1] = 0;
+  board.parseBytes(inBuffer);
+	makeAFrame(b);
 }
 
 void makeFrames() {
@@ -223,44 +238,6 @@ void keyPressed() {
   if (key == UP) {
     board.clearObstructions();
   }
-}
-
-//void readPort() {
-//  PGraphics b = createGraphics(width, height, P2D);
-//  byte[] inBuffer = new byte[totalModules+1];
-//  int i = 0;
-//  while(TRUE) {
-//    
-//    while ( myPort.available() > 0) {  // If data is available,
-//      val = myPort.read();         // read it and store it in val
-//      if(val==10) println();
-//      else print((val-48));
-//    }
-//    //println("number of bytes read: " + numRead);	
-//    if(numRead != 5) {
-//      println("wrong # of bytes");
-//    }
-//    else {
-//      board.parseBytes(inBuffer);
-//      makeAFrame(b);
-//    }
-//    
-//  }
-//  
-//}
-
-void serialEvent(Serial p) {
-  PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[14];
-  int n = p.readBytes(inBuffer);
-  
-  println("bytes read:" + n);
-  for(int i=0; i<inBuffer.length; i++) {
-   inBuffer[i] = (byte)((inBuffer[i]-48));
-    print(inBuffer[i]); 
-  }
-    board.parseBytes(inBuffer);
-    makeAFrame(b);
 }
 
 

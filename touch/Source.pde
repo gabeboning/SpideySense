@@ -28,6 +28,7 @@ class Source {
     for ( Map.Entry entry: paths.entrySet() ) { 
       p = (Path)entry.getValue();
       buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5, 5);
+      buffer.text(entry.getKey().toString(), p.to.location.x * scale, p.to.location.y * scale);
     }
   }
 
@@ -53,10 +54,12 @@ class Source {
       //println(location.x + " " + p.to.location.x);
       //println(p.blocked);
       if (!p.blocked) {
-				buffer.stroke(0,0,0);
+	buffer.stroke(0,0,0);
         buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
       }
     }
+    buffer.fill(255,0,0);
+    buffer.ellipse(this.location.x * scale, this.location.y * scale, 5, 5);
   }
 }
 
