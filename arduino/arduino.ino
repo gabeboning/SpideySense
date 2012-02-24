@@ -12,7 +12,7 @@ const byte numBoard = 7;
 
 byte currentBoard = 0;
 byte cycleNum = 0;
-
+byte globalBuffer[numBoard];
 void setup() {
     
   pinMode(ledData, OUTPUT);
@@ -39,22 +39,24 @@ void loop() {
   delay(1);
   digitalWrite(ledShift, LOW);
   digitalWrite(ledData, LOW);
-
+  if(currentBoard == 0)
+    sendBuffer(globalBuffer, numBoard-1);
+  else
+    sendBuffer(globalBuffer, currentBoard-1);
   digitalWrite(latchPin, LOW);
   digitalWrite(latchPin, HIGH);
   byte buffer[numBoard];
   for(byte i = 0; i < numBoard; i++){
     //buffer[i] = shiftIn(dataIn, clockPin, LSBFIRST);
-    buffer[i] = shift4of8(dataIn, clockPin);
+    globalBuffer[i] = shift4of8(dataIn, clockPin);
   }
-  sendBuffer(buffer);
   currentBoard++;
   if(currentBoard == numBoard) currentBoard = 0;
   delay(1);
 }
 
-void sendBuffer(byte buffer[]) {
-  Serial.write(currentBoard);
+void sendBuffer(byte buffer[], byte boardNum) {
+  Serial.write(boardNum);
   for(int i = numBoard-1; i >= 2 ; i-=2){
     Serial.write((buffer[i]<<4)|buffer[i-1]);
   }
