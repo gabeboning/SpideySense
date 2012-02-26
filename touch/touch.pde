@@ -40,7 +40,7 @@ void setup() {
   size(int(w*displayScale), int(h*displayScale), P2D);
   //bg = createImaue(1080, 720, RGB);
 
-  myPort = new Serial(this, Serial.list()[1], 38400);
+  myPort = new Serial(this, Serial.list()[1], 115200);
   myPort.bufferUntil('\n');
 
   //listener = new Listener(board, myPort);
@@ -108,16 +108,19 @@ void serialEvent(Serial p) {
   PGraphics b = createGraphics(width, height, P2D);
   byte[] inBuffer = new byte[totalModules+10];
   int numRead = p.readBytes(inBuffer);
-  println("number of bytes read: " + numRead);	
-	
-	for(int i =0; i < numRead; i++) {
-		println(inBuffer[i]);
-	}
+  //println("number of bytes read: " + numRead);	
+  inBuffer[numRead - 1] = 0;
+  //println(inBuffer[0]);
+//	for(int i =1; i < numRead; i++) {
+//		print(inBuffer[i]);
+//	}
 	if(numRead != 6) return;
-
-	inBuffer[inBuffer.length - 1] = 0;
+  //println();
   board.parseBytes(inBuffer);
-	makeAFrame(b);
+  if(inBuffer[0] == 0) {
+  
+  makeAFrame(b);
+  }
 }
 
 void makeFrames() {
@@ -326,7 +329,7 @@ void simulateBoard() {
     //println((w-i)*xSpacing+xOffset);
   }  
 
-  for (i=0; i < modulesY; i++) {
+  for (i=0; i < modulesY - 1; i++) {
     board.addSource(0, i*ledSpacing+ledOffset);
   }
 
@@ -344,7 +347,7 @@ void simulateBoard() {
     board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
   }  
 
-  for (i=0; i < modulesY * sensorPerModule; i++) {
+  for (i=0; i < (modulesY-1) * sensorPerModule; i++) {
     board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
   }
 

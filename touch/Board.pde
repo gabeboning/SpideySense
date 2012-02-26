@@ -25,7 +25,7 @@ class Board {
 
   void parseBytes(byte[] inBytes) {
     int led = int(inBytes[0]);
-    println("LED: " + led);
+    //println("LED: " + led);
     int sensorID = 0;
     int i = 0, j=0;
     byte cur;
@@ -37,10 +37,10 @@ class Board {
       for (j=7; j >= 0; j--) { // loop through the bits we want
         // remember that 1 in a bit indicates the sensor ISN'T triggered
         // if a bit == 0, it's triggered, thus, the path is not connected
-        boolean connected =((cur & (1L << j)) == 0);// true is the sensor is triggered	
+        boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
         s.setPath(sensorID, connected);
         // The bit was set
-        println("sensor " + sensorID + connected); 
+        //println("sensor " + sensorID + connected); 
         sensorID++;
       }
     }
