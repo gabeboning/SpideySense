@@ -287,6 +287,8 @@ void simulateBoard() {
   board.addObstruction(.4, 7, 5);
   board.addObstruction(.4, 10, 1);
   board.addObstruction(.4, 1, 1);
+  board.addObstruction(.4, 10, 10);
+  board.addObstruction(.4, 5, 5);
   //board.addObstruction(.5, 8, 11);
   /*board.addObstruction(.25, 20, 10);
    board.addObstruction(.25, 10, 10);
