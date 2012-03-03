@@ -1,15 +1,15 @@
 EAGLE AutoRouter Statistics:
 
-Job           : /Users/nickarango/Dropbox/SpidySense/Schematics/module_r2/module_r2.brd
+Job           : /Users/nickarango/Documents/High School/Senior Year/Electronics/SpideySense/schematics/module_r2/module_r2.brd
 
-Start at      : 14:05:14 (2/15/12)
-End at        : 14:05:14 (2/15/12)
+Start at      : 09:50:37 (3/2/12)
+End at        : 09:50:37 (3/2/12)
 Elapsed time  : 00:00:00
 
 Signals       :    18   RoutingGrid: 50 mil  Layers: 2
-Connections   :    46   predefined:  0 ( 0 Vias )
+Connections   :    48   predefined:  0 ( 0 Vias )
 
-Router memory :   12240
+Router memory :   10064
 
 Passname          :    Busses     Route Optimize1 Optimize2 Optimize3 Optimize4
 
@@ -18,8 +18,8 @@ Number of Ripups  :         0         0         0         0         0         0
 max. Level        :         0         0         0         0         0         0
 max. Total        :         0         0         0         0         0         0
 
-Routed            :        13        44        44        44        44        44
-Vias              :         0        46        15        10         6         6
-Resolution        :    28.3 %    95.7 %    95.7 %    95.7 %    95.7 %    95.7 %
+Routed            :        14        46        46        46        46        46
+Vias              :         0        51         8         7         6         6
+Resolution        :    29.2 %    95.8 %    95.8 %    95.8 %    95.8 %    95.8 %
 
-Final             : 95.7% finished
+Final             : 95.8% finished
