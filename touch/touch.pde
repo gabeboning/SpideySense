@@ -16,7 +16,8 @@ Serial myPort;
 
 // define some constants
 
-int totalModules;
+int totalModules = 7;
+int tossit = 0;
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
 
@@ -33,21 +34,21 @@ boolean pulse = false;
 //Blob[] blobsArray=null; 
 
 void setup() {
-  w = 6;
+  w = 24;
   h = 6;
   ledAngle = 80;
   displayScale = 30; // 80*10 = 800
   size(int(w*displayScale), int(h*displayScale), P2D);
   //bg = createImaue(1080, 720, RGB);
 
-  myPort = new Serial(this, Serial.list()[1], 115200);
+  myPort = new Serial(this, Serial.list()[1], 38400);
   myPort.bufferUntil('\n');
 
   //listener = new Listener(board, myPort);
 
   board = new Board(w, h, ledAngle);
   board.pulse = pulse;
-  simulateBoard();
+  dots();
   //fourbyfour();
   //testBoard();
 
@@ -85,42 +86,49 @@ void draw() {
   //    curFrame = buffer;
   //    findBlobs();
 
-  // parallel
+  // paralle
+//  PGraphics b = createGraphics(width, height, P2D);
+//  makeAFrame(b);
   if (frames.size() > 0) {
     curFrame = frames.remove();
     image(curFrame, 0, 0, width, height);
     //findBlobs();
   }
   else {
-    println("empty");
+    //println("empty");
   }
-
-  //
-  //  if (pulse) {
-  //    //    delay(100);
-  //  }
-
-  //println(frameRate);
-  //delay(1000);
 }
 
 void serialEvent(Serial p) {
   PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[totalModules+10];
+  byte[] inBuffer = new byte[totalModules+1];
   int numRead = p.readBytes(inBuffer);
   //println("number of bytes read: " + numRead);	
-  inBuffer[numRead - 1] = 0;
+  //inBuffer[numRead - 1] = 0;
+  Byte cur;
   //println(inBuffer[0]);
-//	for(int i =1; i < numRead; i++) {
-//		print(inBuffer[i]);
-//	}
-	if(numRead != 6) return;
-  //println();
-  board.parseBytes(inBuffer);
-  if(inBuffer[0] == 0) {
+  print((inBuffer[0]));
+	for(int i = 1; i < numRead-1; i++) {
+          cur = inBuffer[i];
+          for (int j=7; j >= 0; j--) { // loop through the bits we want
+                // remember that 1 in a bit indicates the sensor ISN'T triggered
+                // if a bit == 0, it's triggered, thus, the path is not connected
+                boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
+                // The bit was set
+                print(int(connected));
+                //println("sensor " + sensorID + connected); 
+              }
+	}
+	//if(numRead != 6) return;
+  println();
   
-  makeAFrame(b);
+  //println("serial evented");
+  board.parseBytes(inBuffer); // update board with the data
+  if( inBuffer[0] == 6 ) {
+    makeAFrame(b);
   }
+  //tossit++;
+  //println(tossit);
 }
 
 void makeFrames() {
@@ -142,7 +150,7 @@ void makeAFrame(PGraphics thisFrame) {
     }
     catch(Exception e) {
       println("problem?");
-			}
+    }
 }
 
 void findBlobs() {
@@ -244,127 +252,11 @@ void keyPressed() {
 }
 
 
-void testBoard() {
-  int sensorPerModule = 2;
-
-  board.addSource(w/2, 0);
-  board.addSource(w/2, h);
-  board.addSensor(0, w/2-1.125, 0);
-  board.addSensor(1, w/2+1.125, 0);
-  board.addSensor(8, w/2-1.125, h);
-  board.addSensor(9, w/2+1.125, h);
-  board.addObstruction(.4, 7, 5);
+void dots() {
+  for(int i = 0; i < totalModules*4; i++) {
+  board.dots.add(false);
+  }
 }
-
-void fourbyfour() {
-	int modulesX = 2;
-	int modulesY = 2;
-	int sensorPerModule = 2;
-	int ledSpacing = 3;
-	float ledOffset = .75;
-	float sensorOffset = 1;
-	float sensorSpacing = 1.5;
-	 int i;
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, 0);
-  }  
-
-  for (i=0; i < modulesY; i++) {
-    board.addSource(w, i*ledSpacing+ledOffset);
-  }
-
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, h);
-    //println((w-i)*xSpacing+xOffset);
-  }  
-
-  for (i=0; i < modulesY; i++) {
-    board.addSource(0, i*ledSpacing+ledOffset);
-  }
-
-
-  // add sensors
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
-  }  
-
-  for (i=0; i < modulesY * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
-  }
-
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
-  }  
-
-  for (i=0; i < modulesY * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
-	}
-
-
-}
-void simulateBoard() {
-  int modulesX = w/3;
-  int modulesY = h/3;
-  totalModules = modulesX+modulesY;
-  int sensorPerModule = 4;
-
-  float sensorSpacing = .75;
-  float ledSpacing = 3;
-
-  float ledOffset = 1.5;
-  float sensorOffset = .375;
-
-  int i;
-  // add sources before sensors
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, 0);
-  }  
-
-  for (i=0; i < modulesY; i++) {
-    board.addSource(w, i*ledSpacing+ledOffset);
-  }
-
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, h);
-    //println((w-i)*xSpacing+xOffset);
-  }  
-
-  for (i=0; i < modulesY - 1; i++) {
-    board.addSource(0, i*ledSpacing+ledOffset);
-  }
-
-
-  // add sensors
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
-  }  
-
-  for (i=0; i < modulesY * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
-  }
-
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
-  }  
-
-  for (i=0; i < (modulesY-1) * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
-  }
-
-  board.addObstruction(.4, 7, 5);
-  board.addObstruction(.4, 10, 1);
-  board.addObstruction(.4, 1, 1);
-  //board.addObstruction(.5, 8, 11);
-  /*board.addObstruction(.25, 20, 10);
-   board.addObstruction(.25, 10, 10);
-   board.addObstruction(.25, 2, 11);
-   board.addObstruction(.25, 15, 2);
-   board.addObstruction(.25, 4, 6);
-   board.addObstruction(.25, 11, 20);*/
-  //board.addObstruction(.25, 7, 6);
-}
-
-
 // ==================================================
 // Super Fast Blur v1.1
 // by Mario Klingemann <http://incubator.quasimondo.com>

@@ -2,6 +2,7 @@ class Board {
   ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
   ArrayList<Source> sources = new ArrayList<Source>();
   ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+  ArrayList<Boolean> dots = new ArrayList<Boolean>();
   int w, h, ledAngle;
 
 	
@@ -24,21 +25,25 @@ class Board {
   }
 
   void parseBytes(byte[] inBytes) {
-    int led = int(inBytes[0]);
+    //int led = int(inBytes[0]);
     //println("LED: " + led);
     int sensorID = 0;
     int i = 0, j=0;
     byte cur;
-    Source s; 
+    Boolean s;
     // loop through the bytes
-    s = (Source)sources.get(led);
     for (i=1; i<inBytes.length; i++) {
       cur = inBytes[i];
       for (j=7; j >= 0; j--) { // loop through the bits we want
         // remember that 1 in a bit indicates the sensor ISN'T triggered
         // if a bit == 0, it's triggered, thus, the path is not connected
         boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
-        s.setPath(sensorID, connected);
+        try {
+        dots.set(sensorID, connected);
+        }
+        catch(Exception e) 
+        {
+        }
         // The bit was set
         //println("sensor " + sensorID + connected); 
         sensorID++;
@@ -71,19 +76,19 @@ class Board {
     //            synchronized(obstructions) {
     //obstructions.get(0).location.x = mouseX/displayScale;
     //obstructions.get(0).location.y = mouseY/displayScale;
-    for (int i = 0; i < obstructions.size(); i++) {
-      obstructions.get(i).location.x += random(0.0, 2) - 1;
-      obstructions.get(i).location.y += random(0.0, 2) - 1;
-      if (obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
-      else if (obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
-      if (obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
-      else if (obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
-    }            
+//    for (int i = 0; i < obstructions.size(); i++) {
+//      obstructions.get(i).location.x += random(0.0, 2) - 1;
+//      obstructions.get(i).location.y += random(0.0, 2) - 1;
+//      if (obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
+//      else if (obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
+//      if (obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
+//      else if (obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
+//    }            
     //            }
     //board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
     //}
     //println(board.obstructions.get(0).location);
-    this.findBlockedPaths();
+    //this.findBlockedPaths();
   }
 
   void print() {
@@ -172,53 +177,21 @@ class Board {
   /*void addPath(int from, int to) {
 	paths.add(new Path(sources.get(from), sensors.get(to)));
 	}*/
-  int i = 0;
   void draw(PGraphics b, float scaling) {
     //save(i + ".png");
     b.background(255, 255, 255);
     b.stroke(0, 0, 0);
     b.strokeWeight(1);
-
-    if (pulse) {
-      Source one = sources.get(i);
-      println(i);
-      sources.get(i).draw(b, scaling);
-
-      sources.get(i).drawSensors(b, scaling);
-      b.fill(255, 0, 0);
-      b.stroke(255, 0, 0);
-      b.ellipse(one.location.x * scaling, one.location.y * scaling, 5, 5);
-
-      if ( i == sources.size() -1 ) {
-        i = 0;
-      }
-      else {
-        i++;
-      }
+    for(int i =0; i < dots.size(); i++) {
+    
+    if(dots.get(i) == true) {
+      b.fill(0,255,0);
     }
-
     else {
-      for (Source s : sources) {
-        s.draw(b, scaling);
-        s.drawSensors(b, scaling);
-        //image(b, 0,0,width,height);
-      }
-
-      /*for(Source s : sources) {
-					b.fill(255,0,0);
-					b.noStroke();
-					b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
-				}*/
+      b.fill(255,0,0);
     }
-
-    //b.strokeWeight(2);
-    //b.stroke(0,255,0);
-    //b.noFill();
-    if (drawObstructions) {
-      for (Obstruction o : obstructions) {
-        b.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
-      }
+    b.rect(i * 20, 0, 20,100);
     }
-  }
+  }  
 }
 

@@ -1,12 +1,12 @@
 
 #include <TimerOne.h>
 
-const byte ledData = 6;
-const byte ledShift = 7;
+const byte ledData = 6; // flip flop data
+const byte ledShift = 7; // flip flop clock
 
-const byte latchPin = 11;
-const byte clockPin = 9;
-const byte dataIn = 10;
+const byte latchPin = 11; // shift register latch
+const byte clockPin = 9; // shift register clock
+const byte dataIn = 10; // shift register data
 const int baseTime = 1500;
 const byte numBoard = 7;
 
