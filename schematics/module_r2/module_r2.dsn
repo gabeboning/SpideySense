@@ -55,13 +55,13 @@
       (place "LED1" 1.500000 0.125000 Front 0.000000)
     )
     (component "1/6W-RES$SparkFun" 
-      (place "R1" 1.650000 0.325000 Front 90.000000)
+      (place "R1" 1.650000 0.225000 Front 90.000000)
     )
     (component "TO92-EBC$transistor-neu-to92" 
-      (place "T1" 1.400000 0.375000 Front 0.000000)
+      (place "T1" 1.450000 0.375000 Front 0.000000)
     )
     (component "OSHW_10X200_NOTEXT$OSHW" 
-      (place "U$1" 2.550000 1.175000 Front 0.000000)
+      (place "U$1" 1.350000 1.075000 Front 0.000000)
     )
     (component "22-23-2031$con-molex" 
       (place "X1" 0.375000 0.125000 Front 0.000000)
