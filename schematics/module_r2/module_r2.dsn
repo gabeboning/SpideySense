@@ -40,7 +40,7 @@
       (place "IC2" 2.100000 0.725000 Front 270.000000)
     )
     (component "DIL14$74xx-us" 
-      (place "IC3" 1.500000 0.850000 Front 180.000000)
+      (place "IC3" 1.500000 0.850000 Front 0.000000)
     )
     (component "TO92$linear" 
       (place "IC4" 2.675000 0.425000 Front 180.000000)
@@ -55,10 +55,10 @@
       (place "LED1" 1.500000 0.125000 Front 0.000000)
     )
     (component "1/6W-RES$SparkFun" 
-      (place "R1" 1.650000 0.225000 Front 90.000000)
+      (place "R1" 1.650000 0.325000 Front 90.000000)
     )
     (component "TO92-EBC$transistor-neu-to92" 
-      (place "T1" 1.450000 0.375000 Front 0.000000)
+      (place "T1" 1.400000 0.375000 Front 0.000000)
     )
     (component "OSHW_10X200_NOTEXT$OSHW" 
       (place "U$1" 1.350000 1.075000 Front 0.000000)
@@ -200,25 +200,25 @@
       (pins  "IC4"-"3" "JP1"-"10" "JP2"-"9")
     )
     (net "GND"
-      (pins  "IC1"-"8" "IC2"-"8" "IC3"-"7" "LED1"-"K" "IC1"-"15" "IC2"-"5" "IC2"-"12" "IC2"-"13" "JP1"-"9" "JP2"-"10" "X4"-"2" "X2"-"2" "X1"-"2" "X3"-"2" "IC4"-"2" "C2"-"2")
+      (pins  "IC1"-"8" "IC2"-"8" "LED1"-"K" "IC1"-"15" "IC2"-"5" "IC2"-"12" "IC2"-"13" "JP1"-"9" "JP2"-"10" "X4"-"2" "X2"-"2" "X1"-"2" "X3"-"2" "IC4"-"2" "C2"-"2" "IC3"-"7")
     )
     (net "N$1"
       (pins  "T1"-"C" "R1"-"2")
     )
     (net "N$2"
-      (pins  "IC1"-"1" "JP2"-"3" "JP1"-"4")
+      (pins  "IC1"-"1" "JP1"-"4" "IC3"-"8")
     )
     (net "N$3"
       (pins  "IC1"-"9" "JP2"-"7")
     )
     (net "N$4"
-      (pins  "IC1"-"2" "JP2"-"5" "JP1"-"6")
+      (pins  "IC1"-"2" "JP1"-"6" "IC3"-"6")
     )
     (net "N$5"
       (pins  "JP1"-"1" "JP2"-"2" "IC3"-"1")
     )
     (net "N$6"
-      (pins  "IC3"-"3" "T1"-"B")
+      (pins  "T1"-"B" "IC3"-"3")
     )
     (net "N$7"
       (pins  "LED1"-"A" "R1"-"1")
@@ -230,7 +230,7 @@
       (pins  "IC2"-"1" "JP1"-"5" "JP2"-"6")
     )
     (net "N$10"
-      (pins  "IC2"-"9" "JP1"-"7" "JP2"-"8")
+      (pins  "IC2"-"9" "JP1"-"7" "IC3"-"11")
     )
     (net "N$11"
       (pins  "X4"-"1" "IC1"-"13")
@@ -248,10 +248,22 @@
       (pins  "X2"-"1" "IC1"-"12")
     )
     (net "N$16"
-      (pins  "IC2"-"2" "JP1"-"2" "IC3"-"2")
+      (pins  "JP1"-"2" "IC2"-"2")
+    )
+    (net "N$17"
+      (pins  "IC2"-"3" "IC3"-"2")
+    )
+    (net "N$18"
+      (pins  "JP2"-"3" "IC3"-"9" "IC3"-"10")
+    )
+    (net "N$19"
+      (pins  "JP2"-"5" "IC3"-"4" "IC3"-"5")
+    )
+    (net "N$20"
+      (pins  "JP2"-"8" "IC3"-"13" "IC3"-"12")
     )
     (net "VCC"
-      (pins  "IC1"-"16" "IC2"-"16" "IC3"-"14" "T1"-"E" "X4"-"3" "X2"-"3" "X1"-"3" "X3"-"3" "IC4"-"1" "C2"-"1")
+      (pins  "IC1"-"16" "IC2"-"16" "T1"-"E" "X4"-"3" "X2"-"3" "X1"-"3" "X3"-"3" "IC4"-"1" "C2"-"1" "IC3"-"14")
     )
   )
   (wiring
