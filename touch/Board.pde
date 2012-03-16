@@ -46,16 +46,16 @@ class Board {
 	void update() {
           //if(random(1.0) > .8) {
 //            synchronized(obstructions) {
-	    //obstructions.get(0).location.x = mouseX/displayScale;
-	    //obstructions.get(0).location.y = mouseY/displayScale;
-            for(int i = 0; i < obstructions.size(); i++) {
-              obstructions.get(i).location.x += random(0.0,2) - 1;
-  	    obstructions.get(i).location.y += random(0.0,2) - 1;
-              if(obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
-              else if(obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
-              if(obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
-              else if(obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
-            }            
+	    obstructions.get(0).location.x = mouseX/displayScale;
+	    obstructions.get(0).location.y = mouseY/displayScale;
+//            for(int i = 0; i < obstructions.size(); i++) {
+//              obstructions.get(i).location.x += random(0.0,1) - .5;
+//  	    obstructions.get(i).location.y += random(0.0,1) - .5;
+//              if(obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
+//              else if(obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
+//              if(obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
+//              else if(obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
+//            }            
 //            }
             //board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
           //}
@@ -151,9 +151,10 @@ class Board {
 	/*void addPath(int from, int to) {
 	paths.add(new Path(sources.get(from), sensors.get(to)));
 	}*/
-	int i = 0;
+	
 	void draw(PGraphics b, float scaling) {
               //save(i + ".png");
+              int i = 0;
 		b.background(255,255,255);
 		b.stroke(0,0,0);
 		b.strokeWeight(1);
@@ -178,16 +179,19 @@ class Board {
 		
 		else {
 			for(Source s : sources) {
+                                i++;
 				s.draw(b, scaling);
-				//s.drawSensors(b, scaling);
+				s.drawSensors(b, scaling);
 				//image(b, 0,0,width,height);
 			}
 			
-			/*for(Source s : sources) {
+			for(Source s : sources) {
 				b.fill(255,0,0);
 				b.noStroke();
 				b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
-			}*/
+			}
+                    // println("sources drawn: " + i);
+                    // println("sources total: " + sources.size());
 		}
 		
 		//b.strokeWeight(2);
@@ -198,7 +202,6 @@ class Board {
     	    		b.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
     		  }
                 }
-		
-
 	}
+
 }

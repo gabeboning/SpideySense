@@ -44,7 +44,8 @@ class Source {
 	
 	void draw(PGraphics buffer, float scale) {
 		Path p;
-		//buffer.stroke(255,255,255);
+                
+		buffer.stroke(0,0,0);
 		for( Map.Entry entry: paths.entrySet() ) { 
 			p = (Path)entry.getValue();
 			//println(p.to);
@@ -54,6 +55,8 @@ class Source {
 				buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
 			}
 		}
+                buffer.fill(255,0,0);
+                //buffer.ellipse( location.x*scale - 6 , location.y*scale - 6, 12, 12);
 	}
 	
 	

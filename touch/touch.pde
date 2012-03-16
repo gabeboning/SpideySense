@@ -14,6 +14,8 @@ Board board;
 
 Serial myPort;
 
+GenerateThread generate;
+
 // define some constants
 
 int maxBlob = 0; // highest blob ID we've hit
@@ -21,10 +23,12 @@ int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking 
 
 Flob flob;
 
-ArrayList<trackedBlob> blobs = new ArrayList<trackedBlob>();
-ArrayList<trackedBlob> prevblobs = new ArrayList<trackedBlob>();
+ArrayList<ABlob> blobs = new ArrayList<ABlob>();
+ArrayList<ABlob> prevblobs = new ArrayList<ABlob>();
 
-BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(100);
+int arraySize = 100;
+BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
+BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
 int w, h, ledAngle;
 
@@ -55,71 +59,59 @@ void setup() {
   
   // set up tracking
   flob = new Flob(this, img);
-  flob.setOm(0).setMinNumPixels(minBlobSize).setMaxNumPixels(3000);
-
+  flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(3000).setTresh(1).setFade(0).setBlur(0);
   stroke(255);
   background(255, 255, 255);
   rectMode(CENTER);
  
-
-  thread("makeFrames");
+  frameRate(60);
+  
+  generate = new GenerateThread(board, displayScale, buffer, frames);
+  generate.setPriority(Thread.NORM_PRIORITY);
+  generate.start();
 }
 
 
 void draw() {
+  //println(millis() + " time rendered");
   // serial implementation
-//    board.update(); // do the computations
+//  board.update(); // do the computations
 //    buffer.beginDraw();
-//    board.draw(buffer, displayScale); // draw the lines from the board object
-//    buffer.endDraw();
-//    image(buffer, 0,0);
-//    curFrame = buffer;
+//board.draw(buffer, displayScale); // draw the lines from the board object
+// buffer.endDraw();
+//   frames.offer(buffer);
+//    curFrame = frames.poll();
+//    image(curFrame, 0,0);
 //    findBlobs();
-    
-    // parallel
- if(frames.size() > 0) {
-    curFrame = frames.remove();
-    image(curFrame, 0,0,width,height);
-    findBlobs();
+//    int timeAdded;
+//    // parallel
+ if(frames.size() > 1) {
+    curFrame = frames.poll();
+    int timeAdded = (int)times.poll();
+    println("delay: " + (millis() - timeAdded));
+    //image(curFrame, 0,0);
+    findBlobs(curFrame);
  }
  else {
    println("empty");
  }
-
-//
-//  if (pulse) {
-//    //    delay(100);
-//  }
+ 
 
   println(frameRate);
   //delay(1000);
 }
 
-void makeFrames() {
-  PGraphics thisFrame = createGraphics(width, height, P2D);
-  float myDisplayScale = displayScale;
-  while (true) {
-    board.update(); // do the computations
-    thisFrame.beginDraw();
-    board.draw(thisFrame, myDisplayScale); // draw the lines from the board object
-    thisFrame.endDraw();
-    try {
-      frames.put(thisFrame);
-    }
-    catch(Exception e) {
-      println("problem?");
-    }
-  }
-
-  //println("making frame");
-}
-
-
-void findBlobs() {
+void findBlobs(PGraphics b) {
   boolean stop = false;  
-  
-
-  blobs = flob.tracksimple(get()); // get the blobs
+  image(b, 0,0);
+  PImage im = get();
+  //PImage im = b.get(0,0,width, height);
+  fastBlur(im, 4);
+  //image(im,0,0);
+  im.filter(THRESHOLD, .4);
+  //image(im, 0,0);
+  blobs = flob.calc(im); // get the blobs
+  //image(flob.getImage(),0,0);
   //blobs = flob.tracksimple(img);
   if(blobs.size() > 30) {
     stop = true;
@@ -127,12 +119,12 @@ void findBlobs() {
   }
   assignIds(blobs, prevblobs); // match ids to existing ones 
 
-    prevblobs.clear();
+  prevblobs.clear();
   //image(flob.getImage(), 0, 0, width, height);
 
   for (int i = 0; i < blobs.size(); i++) {
     //    //println("----");
-    trackedBlob ab = (trackedBlob)blobs.get(i); 
+    ABlob ab = (ABlob)blobs.get(i); 
     //    
     //    //box
         fill(0,0,255,100);
@@ -144,7 +136,7 @@ void findBlobs() {
     fill(255, 0, 0);
     text(ab.id, ab.cx-8, ab.cy);
     //
-    prevblobs.add((trackedBlob)blobs.get(i));
+    prevblobs.add((ABlob)blobs.get(i));
   }
   
   //if(stop) noLoop();
@@ -157,12 +149,12 @@ void findBlobs() {
 // simplistic algorithm to persist blob IDs across frames
 // almost certainly a better way to do this, but this was easiest to implement
 // of all the schemes I came up with
-void assignIds(ArrayList<trackedBlob> b, ArrayList<trackedBlob> pb) {
+void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
   //println(b.size() + " previous: " + pb.size());
   int i, j, minId=-1, minIndex = -1;
   int maxId=b.size();
   float minDist, curDist;
-  trackedBlob cur, old;
+  ABlob cur, old;
 
   for (i=0; i<b.size(); i++) { // loop through all current blobs
     minId = -1;
@@ -285,10 +277,10 @@ void simulateBoard() {
   }
 
   board.addObstruction(.4, 7, 5);
-  board.addObstruction(.4, 10, 1);
-  board.addObstruction(.4, 1, 1);
-  board.addObstruction(.4, 10, 10);
-  board.addObstruction(.4, 5, 5);
+//  board.addObstruction(.4, 10, 1);
+//  board.addObstruction(.4, 1, 1);
+//  board.addObstruction(.4, 10, 10);
+//  board.addObstruction(.4, 5, 5);
   //board.addObstruction(.5, 8, 11);
   /*board.addObstruction(.25, 20, 10);
    board.addObstruction(.25, 10, 10);
@@ -318,6 +310,7 @@ void fastBlur(PImage img, int radius) {
   int r[] = new int[wh];
   int g[] = new int[wh];
   int b[] = new int[wh];
+  int cur;
   int rsum, gsum, bsum, x, y, i, p, p1, p2, yp, yi, yw;
   int vmin[] = new int[max(w, h)];
   int vmax[] = new int[max(w, h)];
@@ -334,15 +327,12 @@ void fastBlur(PImage img, int radius) {
     rsum = gsum = bsum = 0;
     for (i = -radius; i <= radius; i++) {
       p = pix[yi + min(wm, max(i, 0))];
-      rsum += (p & 0xff0000)>>16;
-      gsum += (p & 0x00ff00)>>8;
-      bsum += p & 0x0000ff;
+      cur = (p & 0xff0000)>>16;
+      rsum += cur;
     }
     for (x = 0; x < w; x++) {
 
       r[yi] = dv[rsum];
-      g[yi] = dv[gsum];
-      b[yi] = dv[bsum];
 
       if (y == 0) {
         vmin[x] = min(x + radius + 1, wm);
@@ -352,8 +342,6 @@ void fastBlur(PImage img, int radius) {
       p2 = pix[yw + vmax[x]];
 
       rsum += ((p1 & 0xff0000) - (p2 & 0xff0000))>>16;
-      gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00))>>8;
-      bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
       yi++;
     }
     yw += w;
@@ -365,13 +353,11 @@ void fastBlur(PImage img, int radius) {
     for (i = -radius; i <= radius; i++) {
       yi = max(0, yp) + x;
       rsum += r[yi];
-      gsum += g[yi];
-      bsum += b[yi];
       yp += w;
     }
     yi = x;
     for (y = 0; y < h; y++) {
-      pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[gsum]<<8) | dv[bsum];
+      pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[rsum]<<8) | dv[rsum];
       if (x == 0) {
         vmin[y] = min(y + radius + 1, hm)*w;
         vmax[y] = max(y - radius, 0)*w;
@@ -380,8 +366,6 @@ void fastBlur(PImage img, int radius) {
       p2 = x + vmax[y];
 
       rsum += r[p1] - r[p2];
-      gsum += g[p1] - g[p2];
-      bsum += b[p1] - b[p2];
 
       yi += w;
     }
