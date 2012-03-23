@@ -60,7 +60,7 @@ void setup() {
   img = createImage(width, height, RGB);
 
 
-	
+
   // set up tracking
   flob = new Flob(this, img);
   flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(3000).setTresh(1).setFade(0).setBlur(0);
@@ -79,29 +79,17 @@ void setup() {
 
 
 void draw() {
-  //println(millis() + " time rendered");
-  // serial implementation
-//  board.update(); // do the computations
-//    buffer.beginDraw();
-//board.draw(buffer, displayScale); // draw the lines from the board object
-// buffer.endDraw();
-//   frames.offer(buffer);
-//    curFrame = frames.poll();
-//    image(curFrame, 0,0);
-//    findBlobs();
-//    int timeAdded;
-//    // parallel
- if(frames.size() > 1) {
+  if (frames.size() > 1) {
     curFrame = frames.poll();
     int timeAdded = (int)times.poll();
     println("delay: " + (millis() - timeAdded));
     //image(curFrame, 0,0);
     findBlobs(curFrame);
- }
- else {
-   println("empty");
- }
- 
+  }
+  else {
+    println("empty");
+  }
+
 
   println(frameRate);
   //delay(1000);
@@ -114,43 +102,43 @@ void serialEvent(Serial p) {
   //println("number of bytes read: " + numRead);	
   inBuffer[numRead - 1] = 0;
   //println(inBuffer[0]);
-//	for(int i =1; i < numRead; i++) {
-//		print(inBuffer[i]);
-//	}
-	if(numRead != 6) return;
+  //	for(int i =1; i < numRead; i++) {
+  //		print(inBuffer[i]);
+  //	}
+  if (numRead != 6) return;
   //println();
   board.parseBytes(inBuffer);
-  if(inBuffer[0] == 0) {
-  
-  makeAFrame(b);
+  if (inBuffer[0] == 0) {
+
+    makeAFrame(b);
   }
 }
 
 void makeFrames() {
   PGraphics b = createGraphics(width, height, P2D);
   while (true) { // generate lots of frames 
-	 	makeAFrame(b);
+    makeAFrame(b);
   }
 }
 
 // generate one frame and pop it into the queue
 void makeAFrame(PGraphics thisFrame) {
 
-	 	//board.update(); // do the computations
-    thisFrame.beginDraw();
-    board.draw(thisFrame, displayScale); // draw the lines from the board object
-    thisFrame.endDraw();
-    try {
-      frames.put(thisFrame);
-    }
-    catch(Exception e) {
-      println("problem?");
-			}
+  //board.update(); // do the computations
+  thisFrame.beginDraw();
+  board.draw(thisFrame, displayScale); // draw the lines from the board object
+  thisFrame.endDraw();
+  try {
+    frames.put(thisFrame);
+  }
+  catch(Exception e) {
+    println("problem?");
+  }
 }
 
-void findBlobs() {
+void findBlobs(PGraphics frame) {
   boolean stop = false;  
-  image(b, 0,0);
+  image(frame, 0, 0);
   PImage im = get();
   //PImage im = b.get(0,0,width, height);
   fastBlur(im, 4);
@@ -166,7 +154,7 @@ void findBlobs() {
   }
   assignIds(blobs, prevblobs); // match ids to existing ones 
 
-  prevblobs.clear();
+    prevblobs.clear();
   //image(flob.getImage(), 0, 0, width, height);
 
   for (int i = 0; i < blobs.size(); i++) {
@@ -246,11 +234,6 @@ void mouseClicked() {
   //println("adding");
 }
 
-void keyPressed() {
-  if (key == UP) {
-    board.clearObstructions();
-  }
-}
 
 
 void testBoard() {
@@ -266,14 +249,14 @@ void testBoard() {
 }
 
 void fourbyfour() {
-	int modulesX = 2;
-	int modulesY = 2;
-	int sensorPerModule = 2;
-	int ledSpacing = 3;
-	float ledOffset = .75;
-	float sensorOffset = 1;
-	float sensorSpacing = 1.5;
-	 int i;
+  int modulesX = 2;
+  int modulesY = 2;
+  int sensorPerModule = 2;
+  int ledSpacing = 3;
+  float ledOffset = .75;
+  float sensorOffset = 1;
+  float sensorSpacing = 1.5;
+  int i;
   for (i=0; i < modulesX; i++) {
     board.addSource(i*ledSpacing+ledOffset, 0);
   }  
@@ -307,9 +290,7 @@ void fourbyfour() {
 
   for (i=0; i < modulesY * sensorPerModule; i++) {
     board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
-	}
-
-
+  }
 }
 void simulateBoard() {
   int modulesX = w/3;
@@ -361,10 +342,10 @@ void simulateBoard() {
   }
 
   board.addObstruction(.4, 7, 5);
-//  board.addObstruction(.4, 10, 1);
-//  board.addObstruction(.4, 1, 1);
-//  board.addObstruction(.4, 10, 10);
-//  board.addObstruction(.4, 5, 5);
+  //  board.addObstruction(.4, 10, 1);
+  //  board.addObstruction(.4, 1, 1);
+  //  board.addObstruction(.4, 10, 10);
+  //  board.addObstruction(.4, 5, 5);
   //board.addObstruction(.5, 8, 11);
   /*board.addObstruction(.25, 20, 10);
    board.addObstruction(.25, 10, 10);
