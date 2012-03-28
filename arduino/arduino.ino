@@ -47,10 +47,6 @@ void loop() {
   digitalWrite(latchPin, HIGH);
   byte buffer[numBoard];
   for(byte i = 0; i < numBoard; i++){
-<<<<<<< HEAD
-=======
-    //buffer[i] = shiftIn(dataIn, clockPin, LSBFIRST);
->>>>>>> sendTime
     globalBuffer[i] = shift4of8(dataIn, clockPin);
   }
   currentBoard++;
