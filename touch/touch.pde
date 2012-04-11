@@ -31,6 +31,8 @@ BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
 int w, h, ledAngle;
+int frame = 0;
+sendTUIO broadcaster = new sendTUIO();
 
 boolean pulse = false;
 //Blob[] blobsArray=null; 
@@ -91,6 +93,9 @@ void draw() {
     println("delay: " + (millis() - timeAdded));
     //image(curFrame, 0,0);
     findBlobs(curFrame);
+	broadcaster.broadcastBlobs(blobs, frame);
+	frame++;
+    
  }
  else {
    println("empty");
@@ -157,16 +162,16 @@ void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
   ABlob cur, old;
 
   for (i=0; i<b.size(); i++) { // loop through all current blobs
-    minId = -1;
-    minDist = 10000000;
+    minId = -1; // id of minimum distance blob 
+    minDist = 10000000; // distance away of min distance (because it's intensive to compute)
     cur = b.get(i);
 
     for (j=0; j<pb.size(); j++) { // loop through all the old blobs 
       old = pb.get(j);
       curDist = sqrt( pow(cur.cx-old.cx, 2) + pow(cur.cy-old.cy, 2) ); // compute distance
-      if (curDist < minDist) { // find the closest, store it's info
-        minId = old.id;
-        minIndex=j;
+      if (curDist < minDist) { // find the closest, store its info
+        minId = old.id; // could just store this
+        minIndex=j; // but we'll keep everything for easy access
         minDist = curDist;
       }
     }
@@ -174,19 +179,19 @@ void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
     // set the current blobs id to the nearest old one
     // (they're the same)
     if (minId == -1 || minDist > movementThreshold) { // if we ran out of old ones
-      cur.id = maxBlob;
-      maxBlob++;
+      cur.id = maxBlob; // set to new id
+      maxBlob++; // make next max id
       //println("adding id");
     }
     else {
       //println("setting " + cur.id + " to " + minId);
       cur.id = minId;
-      pb.remove(minIndex); // remove it so we don't give it to two, and to get to O(n log n)
+      pb.remove(minIndex); // remove it so we don't give it to two, and to get to n*log n runtime 
     }
   }
 
   if (pb.size() > 0) {
-    pb.clear();
+    pb.clear(); // clear previous blobs to store next frames
   }
 }
 
@@ -198,8 +203,6 @@ void mouseClicked() {
 
   //}
 
-
-  //println("adding");
 }
 
 void keyPressed() {
