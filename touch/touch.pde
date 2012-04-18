@@ -31,7 +31,7 @@ BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
 int w, h, ledAngle;
-int frame = 0;
+int frame = 0; // frame number
 sendTUIO broadcaster = new sendTUIO();
 
 boolean pulse = false;

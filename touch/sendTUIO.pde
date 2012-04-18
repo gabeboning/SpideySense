@@ -24,9 +24,13 @@ class sendTUIO {
 			OSCMessage msg = new OSCMessage("/tuio/2Dcur", args);
 			sender.send(msg);
 			
-			args = new Object[2];
+			args = new Object[blobs.size() + 1];
+			int i = 1;
 			args[0] = "alive";
-			args[1] = new Integer(blobs.size());
+
+			for(ABlob b : blobs) {
+				args[i++] = new Integer(b.id);
+			}
 			msg = new OSCMessage("/tuio/2Dcur", args);
 			sender.send(msg);
 			
@@ -35,7 +39,7 @@ class sendTUIO {
 				args[0] = "set";
 				args[1] = new Integer(b.id); // blob id
 				args[2] = new Float(b.cx / width); // blob x position
-				args[3] = new Float(b.cy / width); // blob y position 
+				args[3] = new Float(b.cy / height); // blob y position 
 				args[4] = new Float(1); // x velocity
 				args[5] = new Float(2); // y velocity
 				args[6] = new Float(3); // motion acceleration
