@@ -20,6 +20,7 @@ GenerateThread generate;
 
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
+int totalModules = 5;
 
 Flob flob;
 
