@@ -5,7 +5,7 @@ class Board {
         int w,h,ledAngle;
 	
 	boolean pulse;
-        boolean drawObstructions = false;
+    boolean drawObstructions = false;
   
 	Board(int w, int h, int ledAngle) {
           this.w = w;
@@ -20,7 +20,28 @@ class Board {
 	void clearObstructions() {
 		obstructions.clear();
 	}
-	
+void parseBytes(byte[] inBytes) {
+    int led = int(inBytes[0]);
+    //println("LED: " + led);
+    int sensorID = 0;
+    int i = 0, j=0;
+    byte cur;
+    Source s; 
+    // loop through the bytes
+    s = (Source)sources.get(led);
+    for (i=1; i<inBytes.length; i++) {
+      cur = inBytes[i];
+      for (j=7; j >= 0; j--) { // loop through the bits we want
+        // remember that 1 in a bit indicates the sensor ISN'T triggered
+        // if a bit == 0, it's triggered, thus, the path is not connected
+        boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
+        s.setPath(sensorID, connected);
+        // The bit was set
+        //println("sensor " + sensorID + connected); 
+        sensorID++;
+      }
+    }
+  }		
 	
 	// takes a string of the data from the arduino and sets the paths accordingly
 	void parseString(String s) {

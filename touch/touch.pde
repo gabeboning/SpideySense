@@ -213,9 +213,22 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
-  String instring = (myPort.readString());
-  //println(instring);
-  board.parseString(instring);
+  PGraphics b = createGraphics(width, height, P2D);
+  byte[] inBuffer = new byte[totalModules+10];
+  int numRead = p.readBytes(inBuffer);
+  //println("number of bytes read: " + numRead);	
+  inBuffer[numRead - 1] = 0;
+  //println(inBuffer[0]);
+//	for(int i =1; i < numRead; i++) {
+//		print(inBuffer[i]);
+//	}
+	if(numRead != 6) return;
+  //println();
+  board.parseBytes(inBuffer);
+  if(inBuffer[0] == 0) {
+  
+  makeAFrame(b);
+  }
 }
 
 void testBoard() {
