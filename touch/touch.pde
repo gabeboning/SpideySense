@@ -107,6 +107,21 @@ void draw() {
   //delay(1000);
 }
 
+// generate one frame and pop it into the queue
+void makeAFrame(PGraphics thisFrame) {
+
+	 //board.update(); // do the computations
+    thisFrame.beginDraw();
+    board.draw(thisFrame, displayScale); // draw the lines from the board object
+    thisFrame.endDraw();
+    try {
+      frames.put(thisFrame);
+    }
+    catch(Exception e) {
+      println("problem?");
+			}
+}
+
 void findBlobs(PGraphics b) {
   boolean stop = false;  
   image(b, 0,0);
@@ -228,7 +243,7 @@ void serialEvent(Serial p) {
   board.parseBytes(inBuffer);
   if(inBuffer[0] == 0) {
   
-  //makeAFrame(b);
+ 	makeAFrame(b);
   }
 }
 
