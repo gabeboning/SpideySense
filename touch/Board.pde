@@ -191,17 +191,17 @@ class Board {
 			b.stroke(255,0,0);
 			b.ellipse(one.location.x * scaling, one.location.y * scaling, 5,5);
 
-        		if( i == sources.size() -1 ) {
+        	if( i == sources.size() -1 ) {
 			  i = 0;
-		        }
-		        else {
+		    }
+		    else {
 			  i++;
-		        }
+			}
 		}
 		
 		else {
 			for(Source s : sources) {
-                                i++;
+                i++;
 				s.draw(b, scaling);
 				s.drawSensors(b, scaling);
 				//image(b, 0,0,width,height);
@@ -219,11 +219,11 @@ class Board {
 		//b.strokeWeight(2);
 		//b.stroke(0,255,0);
 		//b.noFill();
-                if(drawObstructions) {
-    	  	  for(Obstruction o : obstructions) {
-    	    		b.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
-    		  }
-                }
+        if(drawObstructions) {
+    		for(Obstruction o : obstructions) {
+				b.ellipse(o.location.x * scaling, o.location.y * scaling, o.r * 2 * scaling, o.r * 2 * scaling);
+    		}
+        }
 	}
 
 }
