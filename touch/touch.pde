@@ -101,7 +101,6 @@ void draw() {
  else {
    println("empty");
  }
- 
 
   println(frameRate);
   //delay(1000);
@@ -230,19 +229,18 @@ void keyPressed() {
 
 void serialEvent(Serial p) {
   PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[totalModules+10];
+  byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
   int numRead = p.readBytes(inBuffer);
   //println("number of bytes read: " + numRead);	
-  inBuffer[numRead - 1] = 0;
+  inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
+  								// it doesn't interfere with anything
   //println(inBuffer[0]);
 //	for(int i =1; i < numRead; i++) {
 //		print(inBuffer[i]);
 //	}
-	if(numRead != 6) return;
   //println();
   board.parseBytes(inBuffer);
-  if(inBuffer[0] == 0) {
-  
+  if(inBuffer[0] == 0) { 
  	makeAFrame(b);
   }
 }
