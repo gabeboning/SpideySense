@@ -126,7 +126,7 @@ class Board {
 		sources.add(new Source(x, y));
 	}
 
-        PVector findPerp(Source s) {
+	PVector findPerp(Source s) {
           
           if(s.location.x == 0) {
             return new PVector(-1,0); 
@@ -142,9 +142,9 @@ class Board {
           }
           return new PVector(0,0);
          
-        }
+	}
         
-        void addSensor(int i, float x, float y) {
+	void addSensor(int i, float x, float y) {
 		// add the sensor
 		sensors.add(new Sensor(x, y));
                 PVector connection = new PVector();
@@ -176,7 +176,7 @@ class Board {
 	
 	void draw(PGraphics b, float scaling) {
               //save(i + ".png");
-              int i = 0;
+        int i = 0;
 		b.background(255,255,255);
 		b.stroke(0,0,0);
 		b.strokeWeight(1);
