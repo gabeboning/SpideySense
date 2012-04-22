@@ -2,7 +2,7 @@ class Board {
 	ArrayList<Obstruction> obstructions = new ArrayList<Obstruction>();
 	ArrayList<Source> sources = new ArrayList<Source>();
 	ArrayList<Sensor> sensors = new ArrayList<Sensor>();
-        int w,h,ledAngle;
+	int w,h,ledAngle;
 	
 	boolean pulse;
     boolean drawObstructions = false;
@@ -66,38 +66,25 @@ class Board {
 	}
 	
 	void update() {
-          //if(random(1.0) > .8) {
-//            synchronized(obstructions) {
-	    obstructions.get(0).location.x = mouseX/displayScale;
-	    obstructions.get(0).location.y = mouseY/displayScale;
-//            for(int i = 0; i < obstructions.size(); i++) {
-//              obstructions.get(i).location.x += random(0.0,1) - .5;
-//  	    obstructions.get(i).location.y += random(0.0,1) - .5;
-//              if(obstructions.get(i).location.x<0)obstructions.get(i).location.x = 0;
-//              else if(obstructions.get(i).location.x > w) obstructions.get(i).location.x = w;
-//              if(obstructions.get(i).location.y < 0) obstructions.get(i).location.y = 0;
-//              else if(obstructions.get(i).location.y > h) obstructions.get(i).location.y = h;
-//            }            
-//            }
-            //board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
-          //}
-	  //println(board.obstructions.get(0).location);
-	   this.findBlockedPaths();
+		obstructions.get(0).location.x = mouseX/displayScale;
+		obstructions.get(0).location.y = mouseY/displayScale; 
+		this.findBlockedPaths();
 	}
 
 	void print() {
 		//println(sources.get(24).paths.size());
 		//println(sources.get(0).paths);
 	}
-
+	
+	// in simulation, turns off paths that go through an obstruction
 	void findBlockedPaths() {
 		Path p;
-                Iterator it;
+		Iterator it;
 		for(Source source : sources) {
-                        it = source.paths.entrySet().iterator();
+			it = source.paths.entrySet().iterator();
 
 			while( it.hasNext() ) { 
-                                Map.Entry pairs = (Map.Entry)it.next();
+				Map.Entry pairs = (Map.Entry)it.next();
 
 				p = (Path)pairs.getValue();
 				p.blocked = false;
@@ -125,7 +112,8 @@ class Board {
 	void addSource(float x, float y) {
 		sources.add(new Source(x, y));
 	}
-
+	
+	// returns a perpendicular vector given a source
 	PVector findPerp(Source s) {
           
           if(s.location.x == 0) {
@@ -147,19 +135,19 @@ class Board {
 	void addSensor(int i, float x, float y) {
 		// add the sensor
 		sensors.add(new Sensor(x, y));
-                PVector connection = new PVector();
-                PVector perpV = new PVector();
-                float angle;
+		PVector connection = new PVector();
+		PVector perpV = new PVector();
+		float angle;
 		for( Source s : sources ) { // link it to every source we have
-                        connection.set(s.location.x - x, s.location.y - y,0); // set the vector of hte connected path
-                        perpV = findPerp(s); // get the perpendicular vector from the LED
+			connection.set(s.location.x - x, s.location.y - y,0); // set the vector of hte connected path
+			perpV = findPerp(s); // get the perpendicular vector from the LED
+
+			angle = PVector.angleBetween(connection, perpV);
+			angle = angle*360/(2*PI);
                         
-                        angle = PVector.angleBetween(connection, perpV);
-                        angle = angle*360/(2*PI);
-                        
-                        if(angle < ledAngle) {                        
-			  s.addSensor(i, sensors.get(sensors.size() - 1) );
-                        }
+			if(angle < ledAngle) {                        
+				s.addSensor(i, sensors.get(sensors.size() - 1) );
+			}
 		}
 	}
 	
@@ -175,47 +163,24 @@ class Board {
 	}*/
 	
 	void draw(PGraphics b, float scaling) {
-              //save(i + ".png");
-        int i = 0;
+		//save(i + ".png");
+		int i = 0;
 		b.background(255,255,255);
 		b.stroke(0,0,0);
 		b.strokeWeight(1);
-		
-		if(pulse) {
-			Source one = sources.get(i);
-			println(i);
-			sources.get(i).draw(b, scaling);
 
-			sources.get(i).drawSensors(b, scaling);
-			b.fill(255,0,0);
-			b.stroke(255,0,0);
-			b.ellipse(one.location.x * scaling, one.location.y * scaling, 5,5);
-
-        	if( i == sources.size() -1 ) {
-			  i = 0;
-		    }
-		    else {
-			  i++;
-			}
+		for(Source s : sources) {
+			i++;
+			s.draw(b, scaling);
+			s.drawSensors(b, scaling);
+			//image(b, 0,0,width,height);
 		}
-		
-		else {
-			for(Source s : sources) {
-                i++;
-				s.draw(b, scaling);
-				s.drawSensors(b, scaling);
-				//image(b, 0,0,width,height);
-			}
 			
-			for(Source s : sources) {
-				b.fill(255,0,0);
-				b.noStroke();
-				b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
-			}
-                    // println("sources drawn: " + i);
-                    // println("sources total: " + sources.size());
+		for(Source s : sources) {
+			b.fill(255,0,0);
+			b.noStroke();
+			b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
 		}
-		
 		//b.strokeWeight(2);
 		//b.stroke(0,255,0);
 		//b.noFill();

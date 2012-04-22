@@ -6,9 +6,7 @@ import java.util.concurrent.*;
 float displayScale;
 
 PGraphics buffer, curFrame;
-PImage img;
-
-PImage bg;
+PImage img, bg;
 
 Board board;
 
@@ -31,79 +29,76 @@ int arraySize = 100;
 BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
-int w, h, ledAngle;
-int frame = 0; // frame number
-sendTUIO broadcaster = new sendTUIO();
+int w, h, ledAngle, frame = 0; // frame number
+sendTUIO broadcaster = new sendTUIO(); // create our server to send TUIO
 
-boolean pulse = false;
-//Blob[] blobsArray=null; 
+boolean pulse = false; // for demo/explanation purposes
 
 void setup() {
-  w = 36;
-  h = 24;
-  ledAngle = 80;
-  size(1080, 720, P2D);
-  //bg = createImage(1080, 720, RGB);
+	w = 36;
+	h = 24;
+	ledAngle = 80;
+	size(1080, 720, P2D);
 
-  //myPort = new Serial(this, Serial.list()[1], 115200);
-  //myPort.bufferUntil('\n');
+	//myPort = new Serial(this, Serial.list()[1], 115200);
+	//myPort.bufferUntil('\n');
 
-  //listener = new Listener(board, myPort);
+	//listener = new Listener(board, myPort);
 
-  board = new Board(w, h, ledAngle);
-  board.pulse = pulse;
-  simulateBoard();
-  //testBoard();
+	board = new Board(w, h, ledAngle);
+	board.pulse = pulse;
+	simulateBoard();
+	//testBoard();
 
-  buffer = createGraphics(width, height, P2D);
+	buffer = createGraphics(width, height, P2D);
 
-  displayScale = 30; // 80*10 = 800
-  img = createImage(width, height, RGB);
+	displayScale = 30; // 80*10 = 800
+	img = createImage(width, height, RGB);
   
-  // set up tracking
-  flob = new Flob(this, img);
-  flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(3000).setTresh(1).setFade(0).setBlur(0);
-  stroke(255);
-  background(255, 255, 255);
-  rectMode(CENTER);
+	// set up tracking
+	flob = new Flob(this, img);
+	flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(3000).setTresh(1).setFade(0).setBlur(0);
+	stroke(255);
+	background(255, 255, 255);
+	rectMode(CENTER);
  
-  frameRate(60);
+	frameRate(60);
   
-  generate = new GenerateThread(board, displayScale, buffer, frames);
-  generate.setPriority(Thread.NORM_PRIORITY);
-  generate.start();
+	generate = new GenerateThread(board, displayScale, buffer, frames);
+	generate.setPriority(Thread.NORM_PRIORITY);
+	generate.start();
 }
 
 
 void draw() {
-  //println(millis() + " time rendered");
-  // serial implementation
-//  board.update(); // do the computations
-//    buffer.beginDraw();
-//board.draw(buffer, displayScale); // draw the lines from the board object
-// buffer.endDraw();
-//   frames.offer(buffer);
-//    curFrame = frames.poll();
-//    image(curFrame, 0,0);
-//    findBlobs();
-//    int timeAdded;
-//    // parallel
- if(frames.size() > 1) {
-    curFrame = frames.poll();
-    int timeAdded = (int)times.poll();
-    println("delay: " + (millis() - timeAdded));
-    //image(curFrame, 0,0);
-    findBlobs(curFrame);
-	broadcaster.broadcastBlobs(blobs, frame);
-	frame++;
-    
- }
- else {
-   println("empty");
- }
+	//println(millis() + " time rendered");
+	// serial implementation
+	//  board.update(); // do the computations
+	//    buffer.beginDraw();
+	//board.draw(buffer, displayScale); // draw the lines from the board object
+	// buffer.endDraw();
+	//   frames.offer(buffer);
+	//    curFrame = frames.poll();
+	//    image(curFrame, 0,0);
+	//    findBlobs();
+	//    int timeAdded;
+	//    // parallel
+	if(frames.size() > 1) {
+		curFrame = frames.poll();
+		int timeAdded = (int)times.poll();
+		println("delay: " + (millis() - timeAdded));
+		//image(curFrame, 0,0);
+		findBlobs(curFrame);
+		broadcaster.broadcastBlobs(blobs, frame);
+		frame++;
 
-  println(frameRate);
-  //delay(1000);
+	}
+	else {
+		println("empty");
+	}
+
+	println(frameRate);
+	//delay(1000);
 }
 
 // generate one frame and pop it into the queue
@@ -114,55 +109,43 @@ void makeAFrame(PGraphics thisFrame) {
     board.draw(thisFrame, displayScale); // draw the lines from the board object
     thisFrame.endDraw();
     try {
-      frames.put(thisFrame);
-    }
+		frames.put(thisFrame);
+	}
     catch(Exception e) {
-      println("problem?");
-			}
+		println("problem?");
+	}
 }
 
 void findBlobs(PGraphics b) {
-  boolean stop = false;  
-  image(b, 0,0);
-  PImage im = get();
-  //PImage im = b.get(0,0,width, height);
-  fastBlur(im, 4);
-  //image(im,0,0);
-  im.filter(THRESHOLD, .4);
-  //image(im, 0,0);
-  blobs = flob.calc(im); // get the blobs
-  //image(flob.getImage(),0,0);
-  //blobs = flob.tracksimple(img);
-  if(blobs.size() > 30) {
-    stop = true;
-    //save("failed.png");
-  }
-  assignIds(blobs, prevblobs); // match ids to existing ones 
+	boolean stop = false;  
+	image(b, 0,0);
+	PImage im = get();
+	fastBlur(im, 4); // blur it
+	//image(im,0,0);
+	im.filter(THRESHOLD, .4); // threshold
+	//image(im, 0,0);
+	blobs = flob.calc(im); // identify blobs
+	assignIds(blobs, prevblobs); // match ids to existing ones 
 
-  prevblobs.clear();
-  //image(flob.getImage(), 0, 0, width, height);
+	prevblobs.clear();
+	//image(flob.getImage(), 0, 0, width, height);
 
-  for (int i = 0; i < blobs.size(); i++) {
-    //    //println("----");
-    ABlob ab = (ABlob)blobs.get(i); 
-    //    
-    //    //box
+	for (int i = 0; i < blobs.size(); i++) {
+		//    //println("----");
+    	ABlob ab = (ABlob)blobs.get(i); 
+		//    
+		//    //box
         fill(0,0,255,100);
 
         rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
-    //    //centroid
-    //    fill(0,0,0,220);
-    //    rect(ab.cx,ab.cy, 2, 2);
-    fill(255, 0, 0);
-    text(ab.id, ab.cx-8, ab.cy);
-    //
-    prevblobs.add((ABlob)blobs.get(i));
-  }
-  
-  //if(stop) noLoop();
-  
-    
-    
+		//    //centroid
+		//    fill(0,0,0,220);
+		//    rect(ab.cx,ab.cy, 2, 2);
+		fill(255, 0, 0);
+		text(ab.id, ab.cx-8, ab.cy);
+		//
+		prevblobs.add((ABlob)blobs.get(i));
+	}
 }
 
 
@@ -170,79 +153,79 @@ void findBlobs(PGraphics b) {
 // almost certainly a better way to do this, but this was easiest to implement
 // of all the schemes I came up with
 void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
-  //println(b.size() + " previous: " + pb.size());
-  int i, j, minId=-1, minIndex = -1;
-  int maxId=b.size();
-  float minDist, curDist;
-  ABlob cur, old;
+	//println(b.size() + " previous: " + pb.size());
+	int i, j, minId=-1, minIndex = -1;
+	int maxId=b.size();
+	float minDist, curDist;
+	ABlob cur, old;
 
-  for (i=0; i<b.size(); i++) { // loop through all current blobs
-    minId = -1; // id of minimum distance blob 
-    minDist = 10000000; // distance away of min distance (because it's intensive to compute)
-    cur = b.get(i);
+	for (i=0; i<b.size(); i++) { // loop through all current blobs
+		minId = -1; // id of minimum distance blob 
+		minDist = 10000000; // distance away of min distance (because it's intensive to compute)
+		cur = b.get(i);
 
-    for (j=0; j<pb.size(); j++) { // loop through all the old blobs 
-      old = pb.get(j);
-      curDist = sqrt( pow(cur.cx-old.cx, 2) + pow(cur.cy-old.cy, 2) ); // compute distance
-      if (curDist < minDist) { // find the closest, store its info
-        minId = old.id; // could just store this
-        minIndex=j; // but we'll keep everything for easy access
-        minDist = curDist;
-      }
-    }
+		for (j=0; j<pb.size(); j++) { // loop through all the old blobs 
+			old = pb.get(j);
+			curDist = sqrt( pow(cur.cx-old.cx, 2) + pow(cur.cy-old.cy, 2) ); // compute distance
+			if (curDist < minDist) { // find the closest, store its info
+				minId = old.id; // could just store this
+				minIndex=j; // but we'll keep everything for easy access
+				minDist = curDist;
+			}
+		}
 
-    // set the current blobs id to the nearest old one
-    // (they're the same)
-    if (minId == -1 || minDist > movementThreshold) { // if we ran out of old ones
-      cur.id = maxBlob; // set to new id
-      maxBlob++; // make next max id
-      //println("adding id");
-    }
-    else {
-      //println("setting " + cur.id + " to " + minId);
-      cur.id = minId;
-      pb.remove(minIndex); // remove it so we don't give it to two, and to get to n*log n runtime 
-    }
-  }
+		// set the current blobs id to the nearest old one
+		// (they're the same)
+		if (minId == -1 || minDist > movementThreshold) { // if we ran out of old ones
+			cur.id = maxBlob; // set to new id
+			maxBlob++; // make next max id
+			//println("adding id");
+		}
+		else {
+			//println("setting " + cur.id + " to " + minId);
+			cur.id = minId;
+			pb.remove(minIndex); // remove it so we don't give it to two, and to get to n*log n runtime 
+		}
+	}
 
-  if (pb.size() > 0) {
-    pb.clear(); // clear previous blobs to store next frames
-  }
+	if (pb.size() > 0) {
+		pb.clear(); // clear previous blobs to store next frames
+	}
 }
 
 void mouseClicked() {
-  //synchronized(board.obstructions) {
+	//synchronized(board.obstructions) {
 
-  // causes concurrency errors!
-  board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
+	// concurrency problems, but we'll get lucky a lot for demoing
+	board.addObstruction(.4, mouseX/displayScale, mouseY/displayScale);
 
-  //}
+	//}
 
 }
 
 void keyPressed() {
-  if (key == UP) {
-
-    board.clearObstructions();
-  }
+	if (key == UP) { 
+		board.clearObstructions();
+	}
 }
 
 void serialEvent(Serial p) {
-  PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
-  int numRead = p.readBytes(inBuffer);
-  //println("number of bytes read: " + numRead);	
-  inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
+	PGraphics b = createGraphics(width, height, P2D);
+	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
+	int numRead = p.readBytes(inBuffer);
+	//println("number of bytes read: " + numRead);	
+	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
   								// it doesn't interfere with anything
-  //println(inBuffer[0]);
-//	for(int i =1; i < numRead; i++) {
-//		print(inBuffer[i]);
-//	}
-  //println();
-  board.parseBytes(inBuffer);
-  if(inBuffer[0] == 0) { 
- 	makeAFrame(b);
-  }
+	//println(inBuffer[0]);
+
+	//	for(int i =1; i < numRead; i++) {
+	//		print(inBuffer[i]);
+	//	}
+	//println();
+	board.parseBytes(inBuffer);
+	if(inBuffer[0] == 0) { 
+		makeAFrame(b);
+	}
 }
 
 void testBoard() {

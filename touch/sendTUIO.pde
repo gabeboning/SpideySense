@@ -12,7 +12,7 @@ class sendTUIO {
 			sender = new OSCPortOut(address, 3333);
 		}
 		catch (Exception e) {
-			println("problem building osc sender");
+			println("error initiating OSC");
 		}
 	}
 
@@ -54,7 +54,7 @@ class sendTUIO {
 
     
 		} catch(Exception e) {
-    		println("didn't work...");
+    		println("error sending TUIO");
  		}		
 	}
 }
