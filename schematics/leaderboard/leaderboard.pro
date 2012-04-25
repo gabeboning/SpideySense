@@ -1,9 +1,9 @@
 EAGLE AutoRouter Statistics:
 
-Job           : /Users/nickarango/Dropbox/SpidySense/Schematics/leaderboard/leaderboard.brd
+Job           : /Users/nickarango/Documents/High School/Senior Year/Electronics/SpideySense/schematics/leaderboard/leaderboard.brd
 
-Start at      : 11:39:06 (2/24/12)
-End at        : 11:39:06 (2/24/12)
+Start at      : 13:11:37 (4/23/12)
+End at        : 13:11:37 (4/23/12)
 Elapsed time  : 00:00:00
 
 Signals       :     8   RoutingGrid: 50 mil  Layers: 1
@@ -14,7 +14,7 @@ Router memory :   12354
 Passname          :     Route Optimize1 Optimize2 Optimize3 Optimize4
 
 Time per pass     :  00:00:00  00:00:00  00:00:00  00:00:00  00:00:00
-Number of Ripups  :         2         0         0         0         0
+Number of Ripups  :         1         0         0         0         0
 max. Level        :         1         0         0         0         0
 max. Total        :         9         0         0         0         0
 
