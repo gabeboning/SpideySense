@@ -69,42 +69,25 @@ void setup() {
  
   frameRate(60);
   
-  generate = new GenerateThread(board, displayScale, buffer, frames);
-  generate.setPriority(Thread.NORM_PRIORITY);
-  generate.start();
+  //generate = new GenerateThread(board, displayScale, buffer, frames);
+  //generate.setPriority(Thread.NORM_PRIORITY);
+  //generate.start();
 }
 
 
 void draw() {
   //println(millis() + " time rendered");
   // serial implementation
-//  board.update(); // do the computations
-//    buffer.beginDraw();
-//board.draw(buffer, displayScale); // draw the lines from the board object
-// buffer.endDraw();
-//   frames.offer(buffer);
-//    curFrame = frames.poll();
-//    image(curFrame, 0,0);
-//    findBlobs();
-//    int timeAdded;
-//    // parallel
- if(frames.size() > 1) {
-    curFrame = frames.poll();
-    int timeAdded = (int)times.poll();
-    println("delay: " + (millis() - timeAdded));
-    //image(curFrame, 0,0);
-    findBlobs(curFrame);
-	broadcaster.broadcastBlobs(blobs, frame);
-	frame++;
-    
- }
- else {
-   println("empty");
- }
- 
+	board.update(); // do the computations
+	buffer.beginDraw();
+	board.draw(buffer, displayScale); // draw the lines from the board object
+	buffer.endDraw();
+   //frames.offer(buffer);
+    //curFrame = frames.poll();
+    image(buffer, 0,0);
+    findBlobs(buffer);
+    int timeAdded;
 
-  println(frameRate);
-  //delay(1000);
 }
 
 void findBlobs(PGraphics b) {
@@ -210,25 +193,6 @@ void keyPressed() {
   if (key == UP) {
 
     board.clearObstructions();
-  }
-}
-
-void serialEvent(Serial p) {
-  PGraphics b = createGraphics(width, height, P2D);
-  byte[] inBuffer = new byte[totalModules+10];
-  int numRead = p.readBytes(inBuffer);
-  //println("number of bytes read: " + numRead);	
-  inBuffer[numRead - 1] = 0;
-  //println(inBuffer[0]);
-//	for(int i =1; i < numRead; i++) {
-//		print(inBuffer[i]);
-//	}
-	if(numRead != 6) return;
-  //println();
-  board.parseBytes(inBuffer);
-  if(inBuffer[0] == 0) {
-  
-  makeAFrame(b);
   }
 }
 
