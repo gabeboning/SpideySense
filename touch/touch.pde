@@ -2,7 +2,7 @@ import s373.flob.*;
 import processing.serial.*;
 import java.util.*;
 import java.util.concurrent.*;
-
+import processing.opengl.*;
 float displayScale;
 
 PGraphics buffer, curFrame;
@@ -25,7 +25,7 @@ Flob flob;
 ArrayList<ABlob> blobs = new ArrayList<ABlob>();
 ArrayList<ABlob> prevblobs = new ArrayList<ABlob>();
 
-int arraySize = 100;
+int arraySize = 14;
 BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
@@ -40,6 +40,7 @@ void setup() {
 	ledAngle = 80;
 	size(1080, 720, P2D);
 
+	noSmooth(); // please, more then 3fps
 	//myPort = new Serial(this, Serial.list()[1], 115200);
 	//myPort.bufferUntil('\n');
 
@@ -118,11 +119,11 @@ void makeAFrame(PGraphics thisFrame) {
 
 void findBlobs(PGraphics b) {
 	boolean stop = false;  
-	image(b, 0,0);
-	PImage im = get();
+	image(b, 0,0); // have to do this and get() because b.get doesn't work 
+	PImage im = get(); // for some reason
 	fastBlur(im, 4); // blur it
 	//image(im,0,0);
-	im.filter(THRESHOLD, .4); // threshold
+	im.filter(THRESHOLD, .6); // threshold
 	//image(im, 0,0);
 	blobs = flob.calc(im); // identify blobs
 	assignIds(blobs, prevblobs); // match ids to existing ones 
@@ -229,79 +230,79 @@ void serialEvent(Serial p) {
 }
 
 void testBoard() {
-  int sensorPerModule = 2;
+	int sensorPerModule = 2;
 
-  board.addSource(w/2, 0);
-  board.addSource(w/2, h);
-  board.addSensor(0, w/2-1.125, 0);
-  board.addSensor(1, w/2+1.125, 0);
-  board.addSensor(8, w/2-1.125, h);
-  board.addSensor(9, w/2+1.125, h);
-  board.addObstruction(.4, 7, 5);
+	board.addSource(w/2, 0);
+	board.addSource(w/2, h);
+	board.addSensor(0, w/2-1.125, 0);
+	board.addSensor(1, w/2+1.125, 0);
+	board.addSensor(8, w/2-1.125, h);
+	board.addSensor(9, w/2+1.125, h);
+	board.addObstruction(.4, 7, 5);
 }
 
 void simulateBoard() {
-  int modulesX = w/3;
-  int modulesY = h/3;
+	int modulesX = w/3;
+	int modulesY = h/3;
 
-  int sensorPerModule = 4;
+	int sensorPerModule = 4;
 
-  float sensorSpacing = .75;
-  float ledSpacing = 3;
+	float sensorSpacing = .75;
+	float ledSpacing = 3;
 
-  float ledOffset = 1.5;
-  float sensorOffset = .375;
+	float ledOffset = 1.5;
+	float sensorOffset = .375;
 
-  int i;
-  // add sources before sensors
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, 0);
-  }  
+	int i;
+	// add sources before sensors
+	for (i=0; i < modulesX; i++) {
+		board.addSource(i*ledSpacing+ledOffset, 0);
+	}  
 
-  for (i=0; i < modulesY; i++) {
-    board.addSource(w, i*ledSpacing+ledOffset);
-  }
+	for (i=0; i < modulesY; i++) {
+		board.addSource(w, i*ledSpacing+ledOffset);
+	}
 
-  for (i=0; i < modulesX; i++) {
-    board.addSource(i*ledSpacing+ledOffset, h);
-    //println((w-i)*xSpacing+xOffset);
-  }  
+	for (i=0; i < modulesX; i++) {
+		board.addSource(i*ledSpacing+ledOffset, h);
+		//println((w-i)*xSpacing+xOffset);
+	}  
 
-  for (i=0; i < modulesY; i++) {
-    board.addSource(0, i*ledSpacing+ledOffset);
-  }
+	for (i=0; i < modulesY; i++) {
+		board.addSource(0, i*ledSpacing+ledOffset);
+	}
 
 
-  // add sensors
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
-  }  
+	// add sensors
+	for (i=0; i < modulesX * sensorPerModule; i++) {
+		board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
+	}  
 
-  for (i=0; i < modulesY * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
-  }
+	for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule, w, i*sensorSpacing+sensorOffset);
+	}
  
-  for (i=0; i < modulesX * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
-  }  
+	for (i=0; i < modulesX * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
+	}  
 
-  for (i=0; i < modulesY * sensorPerModule; i++) {
-    board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
-  }
+	for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
+	}
 
-  board.addObstruction(.4, 7, 5);
-//  board.addObstruction(.4, 10, 1);
-//  board.addObstruction(.4, 1, 1);
-//  board.addObstruction(.4, 10, 10);
-//  board.addObstruction(.4, 5, 5);
-  //board.addObstruction(.5, 8, 11);
-  /*board.addObstruction(.25, 20, 10);
-   board.addObstruction(.25, 10, 10);
-   board.addObstruction(.25, 2, 11);
-   board.addObstruction(.25, 15, 2);
-   board.addObstruction(.25, 4, 6);
-   board.addObstruction(.25, 11, 20);*/
-  //board.addObstruction(.25, 7, 6);
+	board.addObstruction(.4, 7, 5);
+	//  board.addObstruction(.4, 10, 1);
+	//  board.addObstruction(.4, 1, 1);
+	//  board.addObstruction(.4, 10, 10);
+	//  board.addObstruction(.4, 5, 5);
+	//board.addObstruction(.5, 8, 11);
+	/*board.addObstruction(.25, 20, 10);
+	  board.addObstruction(.25, 10, 10);
+	  board.addObstruction(.25, 2, 11);
+	  board.addObstruction(.25, 15, 2);
+	  board.addObstruction(.25, 4, 6);
+	  board.addObstruction(.25, 11, 20);*/
+	//board.addObstruction(.25, 7, 6);
 }
 
 
@@ -384,6 +385,7 @@ void fastBlur(PImage img, int radius) {
     }
   }
 }
+
 void delay(int ms) {
   int current_time = millis();
   while (millis () - current_time < ms);
