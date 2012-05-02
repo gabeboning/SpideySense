@@ -2,7 +2,6 @@ import s373.flob.*;
 import processing.serial.*;
 import java.util.*;
 import java.util.concurrent.*;
-import processing.opengl.*;
 float displayScale;
 
 PGraphics buffer, curFrame;
