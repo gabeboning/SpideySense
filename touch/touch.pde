@@ -36,6 +36,7 @@ boolean pulse = false; // for demo/explanation purposes
 void setup() {
 	w = 36;
 	h = 24;
+	displayScale = 30; // 80*10 = 800
 	ledAngle = 80;
 	size(1080, 720, P2D);
 
@@ -52,7 +53,6 @@ void setup() {
 
 	buffer = createGraphics(width, height, P2D);
 
-	displayScale = 30; // 80*10 = 800
 	img = createImage(width, height, RGB);
   
 	// set up tracking
@@ -150,6 +150,7 @@ void findBlobs(PGraphics b) {
 
 
 // simplistic algorithm to persist blob IDs across frames
+// also assigns velocity (one frame's worth) to the headx & heady values
 // almost certainly a better way to do this, but this was easiest to implement
 // of all the schemes I came up with
 void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
@@ -184,6 +185,8 @@ void assignIds(ArrayList<ABlob> b, ArrayList<ABlob> pb) {
 		else {
 			//println("setting " + cur.id + " to " + minId);
 			cur.id = minId;
+			cur.headx = (cur.cx - pb.get(minIndex).cx) * 8 / (w * displayScale);
+			cur.heady = (cur.cy - pb.get(minIndex).cy) * 8 / (h * displayScale);
 			pb.remove(minIndex); // remove it so we don't give it to two, and to get to n*log n runtime 
 		}
 	}

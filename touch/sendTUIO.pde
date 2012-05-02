@@ -40,8 +40,8 @@ class sendTUIO {
 				args[1] = new Integer(b.id); // blob id
 				args[2] = new Float(b.cx / width); // blob x position
 				args[3] = new Float(b.cy / height); // blob y position 
-				args[4] = new Float(1); // x velocity
-				args[5] = new Float(2); // y velocity
+				args[4] = new Float(b.headx); // x velocity
+				args[5] = new Float(b.heady); // y velocity
 				args[6] = new Float(3); // motion acceleration
 				msg = new OSCMessage("/tuio/2Dcur", args);
 				sender.send(msg);
