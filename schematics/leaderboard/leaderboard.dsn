@@ -1,4 +1,4 @@
-(PCB "/Users/nickarango/Dropbox/SpidySense/Schematics/leaderboard/leaderboard.brd"
+(PCB "/Users/nickarango/Documents/High School/Senior Year/Electronics/SpideySense/schematics/leaderboard/leaderboard.brd"
   (parser
     (string_quote ")
     (space_in_quoted_tokens on)
@@ -28,46 +28,34 @@
   (placement
     (place_control (flip_style rotate_first))
     (component "CAP-PTH-SMALL$SparkFun" 
-      (place "C1" 0.450000 1.850000 Back 90.000000)
+      (place "C1" 1.100000 1.100000 Back 270.000000)
     )
     (component "CAP-PTH-SMALL$SparkFun" 
-      (place "C2" 0.550000 1.850000 Back 90.000000)
+      (place "C2" 1.500000 1.100000 Back 270.000000)
     )
     (component "CAP-PTH-5MM$SparkFun" 
-      (place "C3" 1.650000 2.950000 Front 90.000000)
+      (place "C3" 1.200000 0.850000 Front 270.000000)
     )
     (component "CAP-PTH-5MM$SparkFun" 
-      (place "C4" 1.150000 2.950000 Front 90.000000)
-    )
-    (component "CAP-PTH-5MM$SparkFun" 
-      (place "C5" 0.850000 2.950000 Front 90.000000)
-    )
-    (component "CAP-PTH-5MM$SparkFun" 
-      (place "C6" 0.350000 2.950000 Front 90.000000)
+      (place "C4" 1.400000 0.850000 Front 270.000000)
     )
     (component "DIL14$74xx-us" 
-      (place "IC1" 0.600000 2.450000 Front 0.000000)
+      (place "IC1" 0.750000 1.100000 Front 270.000000)
     )
-    (component "TO220-IGO$SparkFun" 
-      (place "IC2" 1.400000 2.850000 Front 180.000000)
+    (component "TO92$linear" 
+      (place "IC2" 1.300000 1.100000 Front 180.000000)
     )
-    (component "TO220-IGO$SparkFun" 
-      (place "IC3" 0.600000 2.850000 Front 180.000000)
-    )
-    (component "DIL20$74xx-us" 
-      (place "IC5" 1.550000 2.450000 Front 0.000000)
-    )
-    (component "AVR_ICSP$SparkFun" 
-      (place "JP1" 3.300000 2.650000 Front 0.000000)
+    (component "1X03_LOCK_LONGPADS$SparkFun" 
+      (place "JP1" 0.850000 0.600000 Front 180.000000)
     )
     (component "TC26H$SparkFun" 
-      (place "Q1" 0.500000 1.750000 Back 180.000000)
+      (place "Q1" 1.300000 1.200000 Front 0.000000)
     )
     (component "1/6W-RES$SparkFun" 
-      (place "R1" 0.700000 1.900000 Back 90.000000)
+      (place "R1" 1.500000 1.300000 Back 90.000000)
     )
     (component "1/6W-RES$SparkFun" 
-      (place "R2" 0.300000 1.900000 Back 90.000000)
+      (place "R2" 1.100000 1.300000 Back 90.000000)
     )
   )
   (library
@@ -87,44 +75,14 @@
       (pin "Oblong1" "13" -0.200000 0.150000)
       (pin "Oblong1" "14" -0.300000 0.150000)
     )
-    (image "DIL20$74xx-us"
-      (pin "Oblong1" "1" -0.450000 -0.150000)
-      (pin "Oblong1" "2" -0.350000 -0.150000)
-      (pin "Oblong1" "3" -0.250000 -0.150000)
-      (pin "Oblong1" "4" -0.150000 -0.150000)
-      (pin "Oblong1" "5" -0.050000 -0.150000)
-      (pin "Oblong1" "6" 0.050000 -0.150000)
-      (pin "Oblong1" "7" 0.150000 -0.150000)
-      (pin "Oblong1" "8" 0.250000 -0.150000)
-      (pin "Oblong1" "9" 0.350000 -0.150000)
-      (pin "Oblong1" "10" 0.450000 -0.150000)
-      (pin "Oblong1" "11" 0.450000 0.150000)
-      (pin "Oblong1" "12" 0.350000 0.150000)
-      (pin "Oblong1" "13" 0.250000 0.150000)
-      (pin "Oblong1" "14" 0.150000 0.150000)
-      (pin "Oblong1" "15" 0.050000 0.150000)
-      (pin "Oblong1" "16" -0.050000 0.150000)
-      (pin "Oblong1" "17" -0.150000 0.150000)
-      (pin "Oblong1" "18" -0.250000 0.150000)
-      (pin "Oblong1" "19" -0.350000 0.150000)
-      (pin "Oblong1" "20" -0.450000 0.150000)
-    )
     (image "1/6W-RES$SparkFun"
       (pin "Round2" "1" -0.098425 0.000000)
       (pin "Round2" "2" 0.098425 0.000000)
     )
-    (image "AVR_ICSP$SparkFun"
-      (outline(rect "1#Top" -0.060000 -0.010000 -0.040000 0.010000))
-      (pin "Octagon1" "1" -0.050000 0.200000)
-      (pin "Octagon1" "2" 0.050000 0.200000)
-      (pin "Octagon1" "3" -0.050000 0.100000)
-      (pin "Octagon1" "4" 0.050000 0.100000)
-      (pin "Octagon1" "5" -0.050000 0.000000)
-      (pin "Octagon1" "6" 0.050000 0.000000)
-      (pin "Octagon1" "7" -0.050000 -0.100000)
-      (pin "Octagon1" "8" 0.050000 -0.100000)
-      (pin "Octagon1" "9" -0.050000 -0.200000)
-      (pin "Octagon1" "10" 0.050000 -0.200000)
+    (image "1X03_LOCK_LONGPADS$SparkFun"
+      (pin "Oblong2" "1" 0.000000 0.000000)
+      (pin "Oblong2" "2" 0.100000 -0.010000)
+      (pin "Oblong2" "3" 0.200000 0.000000)
     )
     (image "CAP-PTH-5MM$SparkFun"
       (pin "Round3" "1" -0.098425 0.000000)
@@ -141,10 +99,10 @@
       (pin "Round4" "1" -0.050000 0.000000)
       (pin "Round4" "2" 0.050000 0.000000)
     )
-    (image "TO220-IGO$SparkFun"
-      (pin "Round5" "GND" 0.000000 0.000000)
-      (pin "Square1" "IN" -0.100000 0.000000)
-      (pin "Round5" "OUT" 0.100000 0.000000)
+    (image "TO92$linear"
+      (pin "Octagon1" "1" -0.050000 0.000000)
+      (pin "Octagon1" "2" 0.000000 0.075000)
+      (pin "Octagon1" "3" 0.050000 0.000000)
     )
     (padstack "ViaDefault$0.024000"
       (shape (circle signal 0.040000 0 0))
@@ -162,9 +120,8 @@
       (shape (circle signal 0.050000 0 0))
       (attach off)
     )
-    (padstack "Octagon1" 
-      (shape (polygon "1#Top" 0 0.037000 0.015326 0.015326 0.037000 -0.015326 0.037000 -0.037000 0.015326 -0.037000 -0.015326 -0.015326 -0.037000 0.015326 -0.037000 0.037000 -0.015326 ))
-      (shape (polygon "16#Bottom" 0 0.037000 0.015326 0.015326 0.037000 -0.015326 0.037000 -0.037000 0.015326 -0.037000 -0.015326 -0.015326 -0.037000 0.015326 -0.037000 0.037000 -0.015326 ))
+    (padstack "Oblong2" 
+      (shape (path signal 0.060000 0.000000 -0.030000 0.000000 0.030000))
       (attach off)
     )
     (padstack "Round3" 
@@ -175,24 +132,18 @@
       (shape (circle signal 0.066000 0 0))
       (attach off)
     )
-    (padstack "Round5" 
-      (shape (circle signal 0.074000 0 0))
-      (attach off)
-    )
-    (padstack "Square1" 
-      (shape (rect signal -0.037000 -0.037000 0.037000 0.037000))
+    (padstack "Octagon1" 
+      (shape (polygon "1#Top" 0 0.026000 0.010770 0.010770 0.026000 -0.010770 0.026000 -0.026000 0.010770 -0.026000 -0.010770 -0.010770 -0.026000 0.010770 -0.026000 0.026000 -0.010770 ))
+      (shape (polygon "16#Bottom" 0 0.026000 0.010770 0.010770 0.026000 -0.010770 0.026000 -0.026000 0.010770 -0.026000 -0.010770 -0.010770 -0.026000 0.010770 -0.026000 0.026000 -0.010770 ))
       (attach off)
     )
   )
   (network
     (net "+5V"
-      (pins  "IC2"-"OUT" "C4"-"1" "IC5"-"20" "IC5"-"1" "IC5"-"19")
-    )
-    (net "+5V/1"
-      (pins  "IC3"-"OUT" "C6"-"1" "IC1"-"14")
+      (pins  "C4"-"1" "IC2"-"1" "JP1"-"2")
     )
     (net "GND"
-      (pins  "IC3"-"GND" "C5"-"2" "C6"-"2" "IC2"-"GND" "C3"-"2" "C4"-"2" "C1"-"2" "C2"-"2" "IC1"-"7" "IC5"-"10")
+      (pins  "C3"-"2" "C4"-"2" "C1"-"2" "C2"-"2" "IC1"-"7" "IC2"-"2" "JP1"-"3")
     )
     (net "N$1"
       (pins  "C1"-"1" "Q1"-"1" "IC1"-"1" "R2"-"1")
@@ -204,10 +155,10 @@
       (pins  "IC1"-"2" "R1"-"2" "R2"-"2" "IC1"-"3")
     )
     (net "N$4"
-      (pins  "IC1"-"4" "IC5"-"2")
+      (pins  "IC1"-"4" "JP1"-"1")
     )
     (net "VCC"
-      (pins  "IC2"-"IN" "C3"-"1" "C5"-"1" "IC3"-"IN")
+      (pins  "C3"-"1" "IC1"-"14" "IC2"-"3")
     )
   )
   (wiring
