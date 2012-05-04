@@ -16,7 +16,7 @@ GenerateThread generate;
 // define some constants
 
 int maxBlob = 0; // highest blob ID we've hit
-int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
+int movementThreshold = 300, blurRadius = 5, minBlobSize = 350; // for tracking purposes
 int totalModules = 5;
 
 Flob flob;
@@ -118,17 +118,18 @@ void makeAFrame(PGraphics thisFrame) {
 
 void findBlobs(PGraphics b) {
 	boolean stop = false;  
-	image(b, 0,0); // have to do this and get() because b.get doesn't work 
-	PImage im = get(); // for some reason
-	fastBlur(im, 4); // blur it
-	//image(im,0,0);
-	im.filter(THRESHOLD, .6); // threshold
-	//image(im, 0,0);
-	blobs = flob.calc(im); // identify blobs
+	//image(b, 0,0); // have to do this and get() because b.get doesn't work 
+	//PImage im = get(); // for some reason
+	fastBlurThreshold(b, 4); // blur it
+	//image(b,0,0);
+	//delay(30)
+	image(b,0,0);
+	blobs = flob.calc(get()); // identify blobs
 	assignIds(blobs, prevblobs); // match ids to existing ones 
 
 	prevblobs.clear();
 	//image(flob.getImage(), 0, 0, width, height);
+
 
 	for (int i = 0; i < blobs.size(); i++) {
 		//    //println("----");
@@ -311,8 +312,9 @@ void simulateBoard() {
 // ==================================================
 // Super Fast Blur v1.1
 // by Mario Klingemann <http://incubator.quasimondo.com>
+// modifications by Gabe Boning
 // ==================================================
-void fastBlur(PImage img, int radius) {
+void fastBlurThreshold(PImage img, int radius) {
 
   if (radius < 1) {
     return;
@@ -373,8 +375,15 @@ void fastBlur(PImage img, int radius) {
     }
     yi = x;
     for (y = 0; y < h; y++) {
-      pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[rsum]<<8) | dv[rsum];
-      if (x == 0) {
+      //pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[rsum]<<8) | dv[rsum]; // where the actual setting happens
+	  //if(y%100 == 0) {	println(dv[rsum]); }
+      if(dv[rsum] > 170) {
+	  	pix[yi] = 0xffffffff;
+	  }
+	  else {
+	  	pix[yi] = 0xff000000;
+	}
+	  if (x == 0) {
         vmin[y] = min(y + radius + 1, hm)*w;
         vmax[y] = max(y - radius, 0)*w;
       }
