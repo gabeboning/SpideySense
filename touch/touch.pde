@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 float displayScale;
 
 PGraphics buffer, curFrame;
-PImage img, bg;
+PImage img;
 
 Board board;
 
@@ -38,15 +38,12 @@ void setup() {
 	myPort.bufferUntil('\n');
 	w = 36;
 	h = 24;
-	displayScale = 30; // 80*10 = 800
+	displayScale = 30;	
 	ledAngle = 80;
-	size(1080, 720, P2D);
+	size(w*displayScale, h*displayScale, P2D);
 
 	noSmooth(); // please, more then 3fps
 	
-
-	//listener = new Listener(board, myPort);
-
 	board = new Board(w, h, ledAngle);
 	board.pulse = pulse;
 	//simulateBoard();
@@ -89,13 +86,10 @@ void draw() {
 	}
 
 	println(frameRate);
-	//delay(1000);
 }
 
 // generate one frame and pop it into the queue
 void makeAFrame(PGraphics thisFrame) {
-
-	 //board.update(); // do the computations
     thisFrame.beginDraw();
     board.draw(thisFrame, displayScale); // draw the lines from the board object
     thisFrame.endDraw();
@@ -118,19 +112,12 @@ void findBlobs(PGraphics b) {
 
 
 	for (int i = 0; i < blobs.size(); i++) {
-		//    //println("----");
     	ABlob ab = (ABlob)blobs.get(i); 
-		//    
-		//    //box
         fill(0,0,255,100);
 
         rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
-		//    //centroid
-		//    fill(0,0,0,220);
-		//    rect(ab.cx,ab.cy, 2, 2);
 		fill(255, 0, 0);
 		text(ab.id, ab.cx-8, ab.cy);
-		//
 		prevblobs.add((ABlob)blobs.get(i));
 	}
 }
@@ -200,7 +187,7 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
-        println("serial fired");
+    println("serial fired");
 	PGraphics b = createGraphics(width, height, P2D);
 	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
 	int numRead = p.readBytes(inBuffer);
@@ -209,8 +196,8 @@ void serialEvent(Serial p) {
   								// it doesn't interfere with anything
 
 	board.parseBytes(inBuffer);
-	if(inBuffer[0] == 0) { 
-		makeAFrame(b);
+	if(inBuffer[0] == 0) { // if full board updated
+		makeAFrame(b); // push into queue
 	}
 }
 
@@ -300,18 +287,7 @@ void simulateBoard() {
 	}
 
 	board.addObstruction(.4, 7, 5);
-	//  board.addObstruction(.4, 10, 1);
-	//  board.addObstruction(.4, 1, 1);
-	//  board.addObstruction(.4, 10, 10);
-	//  board.addObstruction(.4, 5, 5);
-	//board.addObstruction(.5, 8, 11);
-	/*board.addObstruction(.25, 20, 10);
-	  board.addObstruction(.25, 10, 10);
-	  board.addObstruction(.25, 2, 11);
-	  board.addObstruction(.25, 15, 2);
-	  board.addObstruction(.25, 4, 6);
-	  board.addObstruction(.25, 11, 20);*/
-	//board.addObstruction(.25, 7, 6);
+	
 }
 
 
