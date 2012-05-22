@@ -73,18 +73,7 @@ void setup() {
 
 void draw() {
     println(myPort.available());
-	//println(millis() + " time rendered");
-	// serial implementation
-	//  board.update(); // do the computations
-	//    buffer.beginDraw();
-	//board.draw(buffer, displayScale); // draw the lines from the board object
-	// buffer.endDraw();
-	//   frames.offer(buffer);
-	//    curFrame = frames.poll();
-	//    image(curFrame, 0,0);
-	//    findBlobs();
-	//    int timeAdded;
-	//    // parallel
+
 	if(frames.size() > 1) {
 		curFrame = frames.poll();
 		int timeAdded = (int)times.poll();
@@ -120,17 +109,12 @@ void makeAFrame(PGraphics thisFrame) {
 
 void findBlobs(PGraphics b) {
 	boolean stop = false;  
-	//image(b, 0,0); // have to do this and get() because b.get doesn't work 
-	//PImage im = get(); // for some reason
 	fastBlurThreshold(b, 4); // blur it
-	//image(b,0,0);
-	//delay(30)
 	image(b,0,0);
 	blobs = flob.calc(get()); // identify blobs
 	assignIds(blobs, prevblobs); // match ids to existing ones 
 
 	prevblobs.clear();
-	//image(flob.getImage(), 0, 0, width, height);
 
 
 	for (int i = 0; i < blobs.size(); i++) {
@@ -223,12 +207,7 @@ void serialEvent(Serial p) {
 	//println("number of bytes read: " + numRead);	
 	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
   								// it doesn't interfere with anything
-	//println(inBuffer[0]);
 
-	//	for(int i =1; i < numRead; i++) {
-	//		print(inBuffer[i]);
-	//	}
-	//println();
 	board.parseBytes(inBuffer);
 	if(inBuffer[0] == 0) { 
 		makeAFrame(b);
