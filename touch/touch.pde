@@ -34,6 +34,8 @@ sendTUIO broadcaster = new sendTUIO(); // create our server to send TUIO
 boolean pulse = false; // for demo/explanation purposes
 
 void setup() {
+        myPort = new Serial(this, Serial.list()[1], 38400);
+	myPort.bufferUntil('\n');
 	w = 36;
 	h = 24;
 	displayScale = 30; // 80*10 = 800
@@ -41,8 +43,7 @@ void setup() {
 	size(1080, 720, P2D);
 
 	noSmooth(); // please, more then 3fps
-	myPort = new Serial(this, Serial.list()[1], 38400);
-	myPort.bufferUntil('\n');
+	
 
 	//listener = new Listener(board, myPort);
 
@@ -71,6 +72,7 @@ void setup() {
 
 
 void draw() {
+    println(myPort.available());
 	//println(millis() + " time rendered");
 	// serial implementation
 	//  board.update(); // do the computations
@@ -214,7 +216,7 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
-        println("serial");
+        println("serial fired");
 	PGraphics b = createGraphics(width, height, P2D);
 	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
 	int numRead = p.readBytes(inBuffer);
