@@ -17,7 +17,7 @@ GenerateThread generate;
 
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 350; // for tracking purposes
-int totalModules = 5;
+int totalModules = 10;
 
 Flob flob;
 
@@ -41,15 +41,15 @@ void setup() {
 	size(1080, 720, P2D);
 
 	noSmooth(); // please, more then 3fps
-	//myPort = new Serial(this, Serial.list()[1], 115200);
-	//myPort.bufferUntil('\n');
+	myPort = new Serial(this, Serial.list()[1], 38400);
+	myPort.bufferUntil('\n');
 
 	//listener = new Listener(board, myPort);
 
 	board = new Board(w, h, ledAngle);
 	board.pulse = pulse;
-	simulateBoard();
-	//testBoard();
+	//simulateBoard();
+	testBoard();
 
 	buffer = createGraphics(width, height, P2D);
 
@@ -64,9 +64,9 @@ void setup() {
  
 	frameRate(60);
   
-	generate = new GenerateThread(board, displayScale, buffer, frames);
+	/*generate = new GenerateThread(board, displayScale, buffer, frames);
 	generate.setPriority(Thread.NORM_PRIORITY);
-	generate.start();
+	generate.start();*/
 }
 
 
@@ -87,14 +87,14 @@ void draw() {
 		curFrame = frames.poll();
 		int timeAdded = (int)times.poll();
 		println("delay: " + (millis() - timeAdded));
-		//image(curFrame, 0,0);
-		findBlobs(curFrame);
+		image(curFrame, 0,0);
+		//findBlobs(curFrame);
 		broadcaster.broadcastBlobs(blobs, frame);
 		frame++;
 
 	}
 	else {
-		println("empty");
+		//println("empty");
 	}
 
 	println(frameRate);
@@ -214,6 +214,7 @@ void keyPressed() {
 }
 
 void serialEvent(Serial p) {
+        println("serial");
 	PGraphics b = createGraphics(width, height, P2D);
 	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
 	int numRead = p.readBytes(inBuffer);
@@ -233,14 +234,38 @@ void serialEvent(Serial p) {
 }
 
 void testBoard() {
-	int sensorPerModule = 2;
+	int modulesX = 5;
+	int modulesY = 5;
 
-	board.addSource(w/2, 0);
-	board.addSource(w/2, h);
-	board.addSensor(0, w/2-1.125, 0);
-	board.addSensor(1, w/2+1.125, 0);
-	board.addSensor(8, w/2-1.125, h);
-	board.addSensor(9, w/2+1.125, h);
+	int sensorPerModule = 4;
+
+	float sensorSpacing = .75;
+	float ledSpacing = 3;
+
+	float ledOffset = 1.5;
+	float sensorOffset = .375;
+
+	int i;
+	// add sources before sensors
+	for (i=0; i < modulesX; i++) {
+		board.addSource(i*ledSpacing+ledOffset, 0);
+	}  
+
+
+	for (i=0; i < modulesY; i++) {
+		board.addSource(0, i*ledSpacing+ledOffset);
+	}
+
+
+	// add sensors
+	for (i=0; i < modulesX * sensorPerModule; i++) {
+		board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
+	}  
+
+	for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
+	}
+
 	board.addObstruction(.4, 7, 5);
 }
 
