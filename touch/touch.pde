@@ -100,6 +100,7 @@ void draw() {
 }
 
 void serialEvent(Serial p) {
+  int start = millis();
   PGraphics b = createGraphics(width, height, P2D);
   byte[] inBuffer = new byte[totalModules+1];
   int numRead = p.readBytes(inBuffer);
@@ -116,7 +117,9 @@ void serialEvent(Serial p) {
     makeAFrame(b);
   }
   //tossit++;
-  println(frameRate);
+  int end = millis();
+  
+  println("serial handling time: " + (end-start));
 }
 
 void makeFrames() {

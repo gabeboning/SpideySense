@@ -65,6 +65,7 @@ void sendBuffer(byte buffer[]) {
     Serial.write((buffer[1]<<4)|buffer[0]);
   }
   Serial.print('\n');
+  delay(25);
 }
 
 uint8_t shift4of8(uint8_t dataPin, uint8_t clockP) {
