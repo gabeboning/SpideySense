@@ -16,7 +16,7 @@ Serial myPort;
 
 // define some constants
 
-int totalModules = 4;
+int totalModules = 9;
 int tossit = 0;
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 400; // for tracking purposes
@@ -38,7 +38,7 @@ void setup() {
   h = 6;
   ledAngle = 80;
   displayScale = 30; // 80*10 = 800
-  size(int(w*displayScale), int(h*displayScale), P2D);
+  size(totalModules*20*4 + 5, int(h*displayScale), P2D);
   //bg = createImaue(1080, 720, RGB);
 
   myPort = new Serial(this, Serial.list()[1], 38400);
@@ -100,7 +100,6 @@ void draw() {
 }
 
 void serialEvent(Serial p) {
-  int start = millis();
   PGraphics b = createGraphics(width, height, P2D);
   byte[] inBuffer = new byte[totalModules+1];
   int numRead = p.readBytes(inBuffer);
@@ -108,18 +107,28 @@ void serialEvent(Serial p) {
   //inBuffer[numRead - 1] = 0;
   Byte cur;
   //println(inBuffer[0]);
+  //println("id: " + int(char(inBuffer[0])));
+	for(int i = 1; i < numRead-1; i++) {
+          cur = inBuffer[i];
+          for (int j=7; j >= 0; j--) { // loop through the bits we want
+                // remember that 1 in a bit indicates the sensor ISN'T triggered
+                // if a bit == 0, it's triggered, thus, the path is not connected
+                boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
+                // The bit was set
+                print(int(connected));
+                //println("sensor " + sensorID + connected); 
+              }
+	}
 	//if(numRead != 6) return;
+  println();
   
   //println("serial evented");
   board.parseBytes(inBuffer); // update board with the data
-
-  if( inBuffer[0] == totalModules-1 ) {
+  if( inBuffer[0] - 48 == totalModules - 1 ) {
     makeAFrame(b);
   }
   //tossit++;
-  int end = millis();
-  
-  println("serial handling time: " + (end-start));
+  //println(tossit);
 }
 
 void makeFrames() {
