@@ -100,7 +100,7 @@ void serialEvent(Serial p) {
         inBuffer[0] = byte(inBuffer[0] - 48);
         if(startUp) {
            println("first bytes, changing the buffering");
-           //p.buffer(7);
+           //p`.buffer(7);
            startUp = false;
            p.write(65);
            return;
@@ -253,7 +253,6 @@ void testBoard() {
 		board.addSensor(i, 0, i*sensorSpacing+sensorOffset);
 	}	
 
-	// add sensors
 	for (i=0; i < modulesX * sensorPerModule; i++) {
 		board.addSensor(i + modulesX * sensorPerModule, i*sensorSpacing+sensorOffset, h-4);
 	}  
