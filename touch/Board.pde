@@ -23,7 +23,6 @@ class Board {
 
 	void parseBytes(byte[] inBytes) {
 		int led = int(inBytes[0]);
-		println("LED: " + led);
 		int sensorID = (inBytes.length-2)*8-1;
                 
 		int i = 0, j=0;
@@ -138,7 +137,6 @@ class Board {
 	void addSensor(int i, float x, float y) {
 		// add the sensor
 		sensors.add(new Sensor(x, y));
-		println("adding sensor " + i);
 		PVector connection = new PVector();
 		PVector perpV = new PVector();
 		float angle;

@@ -24,7 +24,7 @@ Flob flob;
 ArrayList<ABlob> blobs = new ArrayList<ABlob>();
 ArrayList<ABlob> prevblobs = new ArrayList<ABlob>();
 
-int arraySize = 14;
+int arraySize = 5;
 BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
@@ -32,10 +32,11 @@ int w, h, ledAngle, frame = 0; // frame number
 sendTUIO broadcaster = new sendTUIO(); // create our server to send TUIO
 
 boolean pulse = false; // for demo/explanation purposes
+boolean startUp = true;
 
 void setup() {
     myPort = new Serial(this, Serial.list()[1], 38400);
-	myPort.bufferUntil('\n');
+    myPort.bufferUntil('\n');
 	w = 36;
 	h = 24;
 	displayScale = 30;	
@@ -65,8 +66,7 @@ void setup() {
 	/*generate = new GenerateThread(board, displayScale, buffer, frames);
 	generate.setPriority(Thread.NORM_PRIORITY);
 	generate.start();*/
-	delay(500);
-        myPort.write(65);
+        delay(250);
 }
 
 
@@ -76,11 +76,11 @@ void draw() {
 
 	if(frames.size() > 1) {
 		curFrame = frames.poll();
-		//int timeAdded = (int)times.poll();
-		//println("delay: " + (millis() - timeAdded));
+		int timeAdded = (int)times.poll();
+		println("delay: " + (millis() - timeAdded));
 		image(curFrame, 0,0);
 		//findBlobs(curFrame);
-		broadcaster.broadcastBlobs(blobs, frame);
+		//broadcaster.broadcastBlobs(blobs, frame);
 		frame++;
 
 	}
@@ -91,30 +91,38 @@ void draw() {
 	//println(frameRate);
 }
 
-
-
 void serialEvent(Serial p) {
-	PGraphics b = createGraphics(width, height, P2D);
+        int s = millis();
 	byte[] inBuffer = new byte[totalModules/2 + 2]; // add some extra just to be certain
 	int numRead = p.readBytes(inBuffer);
-        println(numRead);
+        //println("bytes read: " + numRead);
+        
         inBuffer[0] = byte(inBuffer[0] - 48);
+        if(startUp) {
+           println("first bytes, changing the buffering");
+           //p.buffer(7);
+           startUp = false;
+           p.write(65);
+           return;
+        }
 	if(numRead != totalModules/2 + 2) {
                 p.write(65);
+                println("wrong number of bytes: " + numRead);
 		return;
 	}
-        	//println("number of bytes read: " + numRead);	
+         //println("number of bytes read: " + numRead);	
 	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
   								// it doesn't interfere with anything
 
 	
-
+        PGraphics b = createGraphics(width, height, P2D);
 	board.parseBytes(inBuffer);
 	if(inBuffer[0] == 0) { // if full board updated
 		makeAFrame(b); // push into queue
 	}
 
         p.write(65);
+        println("serial handling time: " + (millis() - s));
 }
 
 // generate one frame and pop it into the queue
@@ -124,6 +132,7 @@ void makeAFrame(PGraphics thisFrame) {
     thisFrame.endDraw();
     try {
 		frames.put(thisFrame);
+                times.put(millis());
 	}
     catch(Exception e) {
 		println("problem?");

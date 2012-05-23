@@ -16,8 +16,14 @@ class GenerateThread extends Thread {
     this.frame = frame;
     this.frames = frames;
   }
-
+  
   void run() {
+    
+    
+    
+      }
+
+  void demorun() {
     float myDisplayScale = displayScale;
     int i = 0, thisMillis;
     boolean added;
