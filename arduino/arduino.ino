@@ -1,6 +1,3 @@
-
-#include <TimerOne.h>
-
 const byte ledData = 6;
 const byte ledShift = 7;
 
@@ -8,7 +5,7 @@ const byte latchPin = 11;
 const byte clockPin = 9;
 const byte dataIn = 10;
 const int baseTime = 1500;
-const byte numBoard = 7;
+const byte numBoard = 10;
 
 byte currentBoard = 0;
 byte cycleNum = 0;
@@ -28,34 +25,38 @@ void setup() {
 }
 
 void loop() {
-  if(currentBoard == 0){
-    digitalWrite(ledData, HIGH);
-  }
-  else {
-    digitalWrite(ledData, LOW);
-  }
-  
-  digitalWrite(ledShift, HIGH);
-  delay(1);
-  digitalWrite(ledShift, LOW);
-  digitalWrite(ledData, LOW);
-  if(currentBoard == 0)
-    sendBuffer(globalBuffer, numBoard-1);
-  else
-    sendBuffer(globalBuffer, currentBoard-1);
-  digitalWrite(latchPin, LOW);
-  digitalWrite(latchPin, HIGH);
-  byte buffer[numBoard];
-  for(byte i = 0; i < numBoard; i++){
-    globalBuffer[i] = shift4of8(dataIn, clockPin);
-  }
-  currentBoard++;
-  if(currentBoard == numBoard) currentBoard = 0;
-  delay(1);
+  if(Serial.available()){
+    if(Serial.read()==65){
+       Serial.flush();
+      if(currentBoard == 0){
+        digitalWrite(ledData, HIGH);
+      }
+      else {
+        digitalWrite(ledData, LOW);
+      }
+      
+      digitalWrite(ledShift, HIGH);
+      delay(1);//increase if you want to
+      digitalWrite(ledShift, LOW);
+      digitalWrite(ledData, LOW);
+      if(currentBoard == 0)
+        sendBuffer(globalBuffer, numBoard-1);
+      else
+        sendBuffer(globalBuffer, currentBoard-1);
+      digitalWrite(latchPin, LOW);
+      digitalWrite(latchPin, HIGH);
+      byte buffer[numBoard];
+      for(byte i = 0; i < numBoard; i++){
+        globalBuffer[i] = shift4of8(dataIn, clockPin);
+      }
+      currentBoard++;
+      if(currentBoard == numBoard) currentBoard = 0;
+    }
+  } 
 }
 
 void sendBuffer(byte buffer[], byte boardNum) {
-  Serial.write(boardNum);
+  Serial.print(boardNum);
   for(int i = numBoard-1; i >= 2 ; i-=2){
     Serial.write((buffer[i]<<4)|buffer[i-1]);
   }
