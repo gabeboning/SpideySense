@@ -245,17 +245,25 @@ void testBoard() {
 	}
 
 	for (i=0; i < modulesX; i++) {
-		board.addSource(i*ledSpacing+ledOffset, h-4);
+		board.addSource(i*ledSpacing+ledOffset, h-9);
 	}  
 
-
+        for (i=0; i < modulesY; i++) {
+		board.addSource(ledSpacing*(modulesX), h-9-(i*ledSpacing+ledOffset));
+	}
+       
+        // add sensors
 	for (i=0; i < modulesY * sensorPerModule; i++) {
 		board.addSensor(i, 0, i*sensorSpacing+sensorOffset);
 	}	
 
 	for (i=0; i < modulesX * sensorPerModule; i++) {
-		board.addSensor(i + modulesX * sensorPerModule, i*sensorSpacing+sensorOffset, h-4);
-	}  
+		board.addSensor(i + modulesX * sensorPerModule, i*sensorSpacing+sensorOffset, h-9);
+	}
+
+        for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule,ledSpacing*(modulesX), h-9-(i*sensorSpacing+sensorOffset));
+	}
 
 	
 
