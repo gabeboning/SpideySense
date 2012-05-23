@@ -23,25 +23,28 @@ class Board {
 
 	void parseBytes(byte[] inBytes) {
 		int led = int(inBytes[0]);
-		//println("LED: " + led);
-		int sensorID = 0;
+		println("LED: " + led);
+		int sensorID = (inBytes.length-2)*8-1;
+                
 		int i = 0, j=0;
 		byte cur;
 		Source s; 
 		// loop through the bytes
 		s = (Source)sources.get(led);
-		for (i=1; i<inBytes.length; i++) {
+		for (i=1; i<inBytes.length - 1; i++) {
 			cur = inBytes[i];
 			for (j=7; j >= 0; j--) { // loop through the bits we want
 				// remember that 1 in a bit indicates the sensor ISN'T triggered
 				// if a bit == 0, it's triggered, thus, the path is not connected
 				boolean connected = ((cur & (1L << j)) == 0);// true is the sensor is triggered	
+				//System.out.print(int(connected));
+				//println("sensor " + sensorID + connected); 
 				s.setPath(sensorID, connected);
 				// The bit was set
-				//println("sensor " + sensorID + connected); 
-				sensorID++;
+				sensorID--;
 			}
 		}
+		//println();
 	}		
 	
 	// takes a string of the data from the arduino and sets the paths accordingly
@@ -135,6 +138,7 @@ class Board {
 	void addSensor(int i, float x, float y) {
 		// add the sensor
 		sensors.add(new Sensor(x, y));
+		println("adding sensor " + i);
 		PVector connection = new PVector();
 		PVector perpV = new PVector();
 		float angle;
@@ -145,9 +149,7 @@ class Board {
 			angle = PVector.angleBetween(connection, perpV);
 			angle = angle*360/(2*PI);
                         
-			if(angle < ledAngle) {                        
-				s.addSensor(i, sensors.get(sensors.size() - 1) );
-			}
+			s.addSensor(i, sensors.get(sensors.size() - 1) );
 		}
 	}
 	

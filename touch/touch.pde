@@ -34,13 +34,13 @@ sendTUIO broadcaster = new sendTUIO(); // create our server to send TUIO
 boolean pulse = false; // for demo/explanation purposes
 
 void setup() {
-        myPort = new Serial(this, Serial.list()[1], 38400);
+    myPort = new Serial(this, Serial.list()[1], 38400);
 	myPort.bufferUntil('\n');
 	w = 36;
 	h = 24;
 	displayScale = 30;	
 	ledAngle = 80;
-	size(w*displayScale, h*displayScale, P2D);
+	size(int(w*displayScale), int(h*displayScale), P2D);
 
 	noSmooth(); // please, more then 3fps
 	
@@ -65,16 +65,19 @@ void setup() {
 	/*generate = new GenerateThread(board, displayScale, buffer, frames);
 	generate.setPriority(Thread.NORM_PRIORITY);
 	generate.start();*/
+	delay(500);
+        myPort.write(65);
 }
 
 
 void draw() {
-    println(myPort.available());
+    ////println(myPort.available());
+	//handleSerial();
 
 	if(frames.size() > 1) {
 		curFrame = frames.poll();
-		int timeAdded = (int)times.poll();
-		println("delay: " + (millis() - timeAdded));
+		//int timeAdded = (int)times.poll();
+		//println("delay: " + (millis() - timeAdded));
 		image(curFrame, 0,0);
 		//findBlobs(curFrame);
 		broadcaster.broadcastBlobs(blobs, frame);
@@ -85,7 +88,33 @@ void draw() {
 		//println("empty");
 	}
 
-	println(frameRate);
+	//println(frameRate);
+}
+
+
+
+void serialEvent(Serial p) {
+	PGraphics b = createGraphics(width, height, P2D);
+	byte[] inBuffer = new byte[totalModules/2 + 2]; // add some extra just to be certain
+	int numRead = p.readBytes(inBuffer);
+        println(numRead);
+        inBuffer[0] = byte(inBuffer[0] - 48);
+	if(numRead != totalModules/2 + 2) {
+                p.write(65);
+		return;
+	}
+        	//println("number of bytes read: " + numRead);	
+	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
+  								// it doesn't interfere with anything
+
+	
+
+	board.parseBytes(inBuffer);
+	if(inBuffer[0] == 0) { // if full board updated
+		makeAFrame(b); // push into queue
+	}
+
+        p.write(65);
 }
 
 // generate one frame and pop it into the queue
@@ -186,20 +215,7 @@ void keyPressed() {
 	}
 }
 
-void serialEvent(Serial p) {
-    println("serial fired");
-	PGraphics b = createGraphics(width, height, P2D);
-	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
-	int numRead = p.readBytes(inBuffer);
-	//println("number of bytes read: " + numRead);	
-	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
-  								// it doesn't interfere with anything
 
-	board.parseBytes(inBuffer);
-	if(inBuffer[0] == 0) { // if full board updated
-		makeAFrame(b); // push into queue
-	}
-}
 
 void testBoard() {
 	int modulesX = 5;
@@ -215,26 +231,26 @@ void testBoard() {
 
 	int i;
 	// add sources before sensors
-	for (i=0; i < modulesX; i++) {
-		board.addSource(i*ledSpacing+ledOffset, 0);
-	}  
-
-
 	for (i=0; i < modulesY; i++) {
 		board.addSource(0, i*ledSpacing+ledOffset);
 	}
 
+	for (i=0; i < modulesX; i++) {
+		board.addSource(i*ledSpacing+ledOffset, h-4);
+	}  
+
+
+	for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i, 0, i*sensorSpacing+sensorOffset);
+	}	
 
 	// add sensors
 	for (i=0; i < modulesX * sensorPerModule; i++) {
-		board.addSensor(i, i*sensorSpacing+sensorOffset, 0);
+		board.addSensor(i + modulesX * sensorPerModule, i*sensorSpacing+sensorOffset, h-4);
 	}  
 
-	for (i=0; i < modulesY * sensorPerModule; i++) {
-		board.addSensor(i + modulesX * sensorPerModule *2 + modulesY * sensorPerModule, 0, i*sensorSpacing+sensorOffset);
-	}
+	
 
-	board.addObstruction(.4, 7, 5);
 }
 
 void simulateBoard() {
