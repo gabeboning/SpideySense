@@ -17,7 +17,7 @@ GenerateThread generate;
 
 int maxBlob = 0; // highest blob ID we've hit
 int movementThreshold = 300, blurRadius = 5, minBlobSize = 350; // for tracking purposes
-int totalModules = 10;
+int totalModules = 18;
 
 Flob flob;
 
@@ -36,7 +36,7 @@ boolean startUp = true;
 
 void setup() {
     myPort = new Serial(this, Serial.list()[1], 38400);
-    myPort.bufferUntil('\n');
+    //myPort.bufferUntil('\n');
 	w = 36;
 	h = 24;
 	displayScale = 30;	
@@ -93,19 +93,21 @@ void draw() {
 
 void serialEvent(Serial p) {
         int s = millis();
-	byte[] inBuffer = new byte[totalModules/2 + 2]; // add some extra just to be certain
-	int numRead = p.readBytes(inBuffer);
-        //println("bytes read: " + numRead);
-        
-        inBuffer[0] = byte(inBuffer[0] - 48);
         if(startUp) {
-           println("first bytes, changing the buffering");
-           //p`.buffer(7);
-           startUp = false;
-           p.write(65);
-           return;
+          myPort.bufferUntil('\n');
+          startUp = false;
         }
-	if(numRead != totalModules/2 + 2) {
+	byte[] inBuffer = new byte[10]; // add some extra just to be certain
+	int numRead = p.readBytes(inBuffer);
+        println("bytes read: " + numRead);
+        println("bytes available: " + p.available());
+        p.clear();
+
+       int id = int(inBuffer[0]);
+        
+        
+        println("ID: " + id);
+	if(numRead != 10) {
                 p.write(65);
                 println("wrong number of bytes: " + numRead);
 		return;
