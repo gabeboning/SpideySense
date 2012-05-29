@@ -29,7 +29,7 @@ class Source {
   
 			p = (Path)entry.getValue();
 			buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5,5);
-                        buffer.text("" + entry.getKey(), p.to.location.x * scale, p.to.location.y * scale);
+                        buffer.text("" + entry.getKey(), p.to.location.x * scale, p.to.location.y * scale + 10);
 		}
 		
 	}

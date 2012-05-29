@@ -23,7 +23,10 @@ class Board {
 
 	void parseBytes(byte[] inBytes) {
 		int led = int(inBytes[0]);
-		int sensorID = (inBytes.length-2)*8-1;
+                println("LED id: " + led);
+                //println("length of bytes: " + inBytes.length);
+		//int sensorID = (inBytes.length-2)*8-1;
+                int sensorID = sensors.size() - 1;
                 
 		int i = 0, j=0;
 		byte cur;
@@ -44,7 +47,7 @@ class Board {
 			}
 		}
 		//println();
-	}		
+	}	
 	
 	// takes a string of the data from the arduino and sets the paths accordingly
 	void parseString(String s) {
@@ -172,14 +175,16 @@ class Board {
 		for(Source s : sources) {
 			i++;
 			s.draw(b, scaling);
-			s.drawSensors(b, scaling);
+			//s.drawSensors(b, scaling);
 			//image(b, 0,0,width,height);
 		}
 			
-		for(Source s : sources) {
+		for(i = 0; i < sources.size(); i++) {
+                      Source s = (Source)sources.get(i);
 			b.fill(255,0,0);
 			b.noStroke();
 			b.ellipse(s.location.x * scaling, s.location.y * scaling, 5,5);
+                        b.text(i, s.location.x*scaling, s.location.y*scaling);
 		}
 		//b.strokeWeight(2);
 		//b.stroke(0,255,0);
