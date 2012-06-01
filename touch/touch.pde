@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 float displayScale;
 
 PGraphics buffer, curFrame;
-PImage img, bg;
+PImage img;
 
 Board board;
 
@@ -16,15 +16,16 @@ GenerateThread generate;
 // define some constants
 
 int maxBlob = 0; // highest blob ID we've hit
-int movementThreshold = 300, blurRadius = 5, minBlobSize = 350; // for tracking purposes
-int totalModules = 5;
+int thresh = 130;
+int movementThreshold = 300, blurRadius = 8, minBlobSize = 30, maxBlobSize = 50000; // for tracking purposes
+int totalModules = 20;
 
 Flob flob;
 
 ArrayList<ABlob> blobs = new ArrayList<ABlob>();
 ArrayList<ABlob> prevblobs = new ArrayList<ABlob>();
 
-int arraySize = 14;
+int arraySize = 5;
 BlockingQueue<Integer> times = new ArrayBlockingQueue<Integer>(arraySize);
 BlockingQueue<PGraphics> frames = new ArrayBlockingQueue<PGraphics>(arraySize);
 
@@ -32,24 +33,25 @@ int w, h, ledAngle, frame = 0; // frame number
 sendTUIO broadcaster = new sendTUIO(); // create our server to send TUIO
 
 boolean pulse = false; // for demo/explanation purposes
+boolean startUp = true;
 
 void setup() {
-	w = 36;
-	h = 24;
-	displayScale = 30; // 80*10 = 800
+    myPort = new Serial(this, Serial.list()[1], 115200);
+    //myPort.buffer(15);
+	myPort.bufferUntil('\n');
+	
+	w = 15;
+	h = 15;
+	displayScale = 30;	
 	ledAngle = 80;
-	size(1080, 720, P2D);
+	size(int(w*displayScale), int(h*displayScale), P2D);
 
 	noSmooth(); // please, more then 3fps
-	//myPort = new Serial(this, Serial.list()[1], 115200);
-	//myPort.bufferUntil('\n');
-
-	//listener = new Listener(board, myPort);
-
+	
 	board = new Board(w, h, ledAngle);
 	board.pulse = pulse;
-	simulateBoard();
-	//testBoard();
+	//simulateBoard();
+	testBoard();
 
 	buffer = createGraphics(width, height, P2D);
 
@@ -57,59 +59,92 @@ void setup() {
   
 	// set up tracking
 	flob = new Flob(this, img);
-	flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(3000).setTresh(1).setFade(0).setBlur(0);
+	flob.setOm(10).setMinNumPixels(minBlobSize).setMaxNumPixels(maxBlobSize).setTresh(1).setFade(0).setBlur(0);
 	stroke(255);
 	background(255, 255, 255);
 	rectMode(CENTER);
  
 	frameRate(60);
   
-	generate = new GenerateThread(board, displayScale, buffer, frames);
+	/*generate = new GenerateThread(board, displayScale, buffer, frames);
 	generate.setPriority(Thread.NORM_PRIORITY);
-	generate.start();
+	generate.start();*/
+    delay(250);
+	//serialEvent(myPort);
+		
 }
 
 
 void draw() {
-	//println(millis() + " time rendered");
-	// serial implementation
-	//  board.update(); // do the computations
-	//    buffer.beginDraw();
-	//board.draw(buffer, displayScale); // draw the lines from the board object
-	// buffer.endDraw();
-	//   frames.offer(buffer);
-	//    curFrame = frames.poll();
-	//    image(curFrame, 0,0);
-	//    findBlobs();
-	//    int timeAdded;
-	//    // parallel
+    ////println(myPort.available());
+	//handleSerial();
+
 	if(frames.size() > 1) {
 		curFrame = frames.poll();
 		int timeAdded = (int)times.poll();
 		println("delay: " + (millis() - timeAdded));
 		//image(curFrame, 0,0);
-		findBlobs(curFrame);
-		broadcaster.broadcastBlobs(blobs, frame);
+		//findBlobs(curFrame);
+		image(curFrame, 0,0);
+                broadcaster.broadcastBlobs(blobs, frame);
 		frame++;
 
 	}
 	else {
-		println("empty");
+		//println("empty");
 	}
 
-	println(frameRate);
-	//delay(1000);
+	//println(frameRate);
+}
+
+void serialEvent(Serial p) {
+        //println("------");
+        int s = millis();
+		println("serial");
+        int id;
+	byte[] inBuffer = new byte[12]; // add some extra just to be certain
+	int numRead = p.readBytes(inBuffer);
+        if(inBuffer[0] == 65) {
+          inBuffer[0] = 10;
+        }
+        
+        p.clear();
+
+        id = int(inBuffer[0]);
+	
+        if(numRead != 12) {
+                p.write(65);
+                println("wrong number of bytes: " + numRead);
+                p.clear();
+		return;
+	}
+        //println("bytes read: " + numRead);
+        //println("bytes available: " + p.available());
+        //println("ID: " + id);
+         //println("number of bytes read: " + numRead);	
+	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
+  								// it doesn't interfere with anything
+
+	
+        PGraphics b = createGraphics(width, height, P2D);
+	board.parseBytes(inBuffer);
+	if(inBuffer[0] == 0) { // if full board updated
+		makeAFrame(b); // push into queue
+		println("making a frame");
+	}
+		println("-------");
+        p.write(65);
+        //println("serial handling time: " + (millis() - s));
 }
 
 // generate one frame and pop it into the queue
 void makeAFrame(PGraphics thisFrame) {
-
-	 //board.update(); // do the computations
     thisFrame.beginDraw();
     board.draw(thisFrame, displayScale); // draw the lines from the board object
     thisFrame.endDraw();
     try {
 		frames.put(thisFrame);
+                times.put(millis());
 	}
     catch(Exception e) {
 		println("problem?");
@@ -118,33 +153,21 @@ void makeAFrame(PGraphics thisFrame) {
 
 void findBlobs(PGraphics b) {
 	boolean stop = false;  
-	//image(b, 0,0); // have to do this and get() because b.get doesn't work 
-	//PImage im = get(); // for some reason
-	fastBlurThreshold(b, 4); // blur it
-	//image(b,0,0);
-	//delay(30)
+	fastBlurThreshold(b, blurRadius); // blur it
 	image(b,0,0);
 	blobs = flob.calc(get()); // identify blobs
 	assignIds(blobs, prevblobs); // match ids to existing ones 
 
 	prevblobs.clear();
-	//image(flob.getImage(), 0, 0, width, height);
 
 
 	for (int i = 0; i < blobs.size(); i++) {
-		//    //println("----");
     	ABlob ab = (ABlob)blobs.get(i); 
-		//    
-		//    //box
         fill(0,0,255,100);
 
         rect(ab.cx,ab.cy,ab.dimx,ab.dimy);
-		//    //centroid
-		//    fill(0,0,0,220);
-		//    rect(ab.cx,ab.cy, 2, 2);
 		fill(255, 0, 0);
 		text(ab.id, ab.cx-8, ab.cy);
-		//
 		prevblobs.add((ABlob)blobs.get(i));
 	}
 }
@@ -213,35 +236,55 @@ void keyPressed() {
 	}
 }
 
-void serialEvent(Serial p) {
-	PGraphics b = createGraphics(width, height, P2D);
-	byte[] inBuffer = new byte[totalModules+10]; // add some extra just to be certain
-	int numRead = p.readBytes(inBuffer);
-	//println("number of bytes read: " + numRead);	
-	inBuffer[numRead - 1] = 0;	// last byte is always \n, make it zero just to be certain
-  								// it doesn't interfere with anything
-	//println(inBuffer[0]);
-
-	//	for(int i =1; i < numRead; i++) {
-	//		print(inBuffer[i]);
-	//	}
-	//println();
-	board.parseBytes(inBuffer);
-	if(inBuffer[0] == 0) { 
-		makeAFrame(b);
-	}
-}
-
 void testBoard() {
-	int sensorPerModule = 2;
+	int modulesX = 5;
+	int modulesY = 5;
 
-	board.addSource(w/2, 0);
-	board.addSource(w/2, h);
-	board.addSensor(0, w/2-1.125, 0);
-	board.addSensor(1, w/2+1.125, 0);
-	board.addSensor(8, w/2-1.125, h);
-	board.addSensor(9, w/2+1.125, h);
-	board.addObstruction(.4, 7, 5);
+	int sensorPerModule = 4;
+
+	float sensorSpacing = .75;
+	float ledSpacing = 3;
+
+	float ledOffset = 1.5;
+	float sensorOffset = .375;
+
+	int i;
+	// add sources before sensors
+	for (i=0; i < modulesY; i++) {
+		board.addSource(0, i*ledSpacing+ledOffset);
+	}
+
+	for (i=0; i < modulesX; i++) {
+		board.addSource(i*ledSpacing+ledOffset, h);
+	}  
+
+        for (i=0; i < modulesY; i++) {
+		board.addSource(ledSpacing*(modulesX), h-(i*ledSpacing+ledOffset));
+	}
+
+        for (i=0; i < modulesX; i++) {
+		board.addSource((modulesX - i)*ledSpacing-ledOffset, 0);
+	}  
+       
+        // add sensors
+	for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i, 0, i*sensorSpacing+sensorOffset);
+	}	
+
+	for (i=0; i < modulesX * sensorPerModule; i++) {
+		board.addSensor(i + modulesY * sensorPerModule, i*sensorSpacing+sensorOffset, h);
+	}
+
+        for (i=0; i < modulesY * sensorPerModule; i++) {
+		board.addSensor(i + modulesX * sensorPerModule + modulesY * sensorPerModule,ledSpacing*(modulesX), h-(i*sensorSpacing+sensorOffset));
+	}
+
+        for (i=0; i < modulesX * sensorPerModule; i++) {
+		board.addSensor((modulesX * sensorPerModule - 1 - i) + modulesX * sensorPerModule + modulesY * sensorPerModule * 2, i*sensorSpacing+sensorOffset, 0);
+	}
+
+	
+
 }
 
 void simulateBoard() {
@@ -294,18 +337,7 @@ void simulateBoard() {
 	}
 
 	board.addObstruction(.4, 7, 5);
-	//  board.addObstruction(.4, 10, 1);
-	//  board.addObstruction(.4, 1, 1);
-	//  board.addObstruction(.4, 10, 10);
-	//  board.addObstruction(.4, 5, 5);
-	//board.addObstruction(.5, 8, 11);
-	/*board.addObstruction(.25, 20, 10);
-	  board.addObstruction(.25, 10, 10);
-	  board.addObstruction(.25, 2, 11);
-	  board.addObstruction(.25, 15, 2);
-	  board.addObstruction(.25, 4, 6);
-	  board.addObstruction(.25, 11, 20);*/
-	//board.addObstruction(.25, 7, 6);
+	
 }
 
 
@@ -377,7 +409,7 @@ void fastBlurThreshold(PImage img, int radius) {
     for (y = 0; y < h; y++) {
       //pix[yi] = 0xff000000 | (dv[rsum]<<16) | (dv[rsum]<<8) | dv[rsum]; // where the actual setting happens
 	  //if(y%100 == 0) {	println(dv[rsum]); }
-      if(dv[rsum] > 170) {
+      if(dv[rsum] > thresh) {
 	  	pix[yi] = 0xffffffff;
 	  }
 	  else {

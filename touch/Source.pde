@@ -26,8 +26,10 @@ class Source {
 		buffer.fill(0,0,255);
 		Path p;
 		for( Map.Entry entry: paths.entrySet() ) { 
+  
 			p = (Path)entry.getValue();
 			buffer.ellipse(p.to.location.x * scale, p.to.location.y * scale, 5,5);
+                        buffer.text("" + entry.getKey(), p.to.location.x * scale, p.to.location.y * scale + 10);
 		}
 		
 	}
@@ -37,6 +39,7 @@ class Source {
 	}
 	
 	void setPath(int path, boolean sensorValue) {
+		if(!paths.containsKey(path)) return;
 		Path p = (Path)paths.get(path);
 		p.blocked = !sensorValue;
 		//println(p.blocked);
@@ -50,7 +53,7 @@ class Source {
 			p = (Path)entry.getValue();
 			//println(p.to);
 			//println(location.x + " " + p.to.location.x);
-			//println(p.blocked);
+			//println(p.blocked)< modulesX;
 			if(!p.blocked) {
 				buffer.line(location.x * scale, location.y * scale, p.to.location.x * scale, p.to.location.y * scale);
 			}
