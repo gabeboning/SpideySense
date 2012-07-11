@@ -83,9 +83,9 @@ void draw() {
 		curFrame = frames.poll();
 		int timeAdded = (int)times.poll();
 		println("delay: " + (millis() - timeAdded));
-		//image(curFrame, 0,0);
-		//findBlobs(curFrame);
 		image(curFrame, 0,0);
+		//findBlobs(curFrame);
+		//image(curFrame, 0,0);
                 broadcaster.broadcastBlobs(blobs, frame);
 		frame++;
 
